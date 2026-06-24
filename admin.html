@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-Room Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #09090b; --surface: rgba(24,24,27,0.95); --border: rgba(255,255,255,0.1);
+  --cyan: #06b6d4; --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+  --text: #f4f4f5; --muted: #a1a1aa;
+  --font-en: 'Inter', sans-serif; --font-ja: 'Noto Sans JP', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-ja); min-height: 100vh; }
+
+#app { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.login-box {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 24px;
+  padding: 48px 40px; width: 100%; max-width: 420px; box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+}
+.login-title { font-family: var(--font-en); font-size: 2rem; font-weight: 900; letter-spacing: 0.1em; margin-bottom: 6px; }
+.login-title span { color: var(--cyan); }
+.login-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 36px; line-height: 1.7; }
+.field { margin-bottom: 18px; }
+label { display: block; font-family: var(--font-en); font-size: 0.75rem; color: var(--cyan); font-weight: 700; margin-bottom: 10px; letter-spacing: 0.15em; text-transform: uppercase; }
+input[type="email"], input[type="password"], input[type="text"] {
+  width: 100%; padding: 13px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text); font-family: var(--font-ja); font-size: 0.95rem; outline: none; transition: all 0.3s;
+}
+input:focus { border-color: var(--cyan); background: rgba(6,182,212,0.08); box-shadow: 0 0 0 4px rgba(6,182,212,0.12); }
+.btn-login {
+  width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer;
+  background: linear-gradient(135deg, var(--cyan), #0284c7); color: #fff;
+  font-family: var(--font-en); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.12em;
+  transition: all 0.3s; box-shadow: 0 8px 24px rgba(6,182,212,0.3); margin-top: 4px;
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(6,182,212,0.4); }
+.btn-login:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.err-box {
+  background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px;
+  color: #fca5a5; padding: 12px 16px; font-size: 0.88rem; margin-bottom: 18px; display: none; line-height: 1.5;
+}
+
+#admin-wrap { display: none; flex-direction: column; min-height: 100vh; }
+.adm-header {
+  background: rgba(9,9,11,0.92); border-bottom: 1px solid var(--border); padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 20; backdrop-filter: blur(24px); gap: 10px; flex-wrap: wrap;
+}
+.adm-logo { font-family: var(--font-en); font-size: 1.1rem; font-weight: 900; color: var(--cyan); letter-spacing: 0.1em; flex-shrink: 0; }
+.adm-logo span { color: var(--muted); font-weight: 400; font-size: 0.78rem; margin-left: 10px; }
+.adm-user { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); flex: 1; }
+.btn-sm { padding: 8px 16px; border-radius: 8px; font-family: var(--font-en); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; cursor: pointer; transition: 0.2s; border: 1px solid; }
+.btn-sm-pri { background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.4); color: var(--cyan); }
+.btn-sm-pri:hover { background: rgba(6,182,212,0.2); }
+.btn-sm-danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); color: var(--red); }
+.btn-sm-danger:hover { background: rgba(239,68,68,0.2); }
+
+.adm-body { padding: 28px 28px 60px; max-width: 1400px; margin: 0 auto; width: 100%; }
+.gs-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.gs-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; text-align: center; }
+.gs-val { font-family: var(--font-en); font-size: 2rem; font-weight: 900; color: var(--cyan); line-height: 1; margin-bottom: 7px; }
+.gs-lbl { font-size: 0.68rem; color: var(--muted); font-family: var(--font-en); letter-spacing: 0.12em; font-weight: 700; text-transform: uppercase; }
+
+.sec-head { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.sec-title { font-family: var(--font-en); font-size: 0.78rem; font-weight: 700; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+.search-input {
+  padding: 9px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: var(--font-ja); font-size: 0.88rem; outline: none; transition: 0.3s; flex: 1; max-width: 320px;
+}
+.search-input:focus { border-color: var(--cyan); }
+
+.tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 900px; }
+thead { background: rgba(255,255,255,0.04); }
+th { padding: 12px 14px; text-align: left; font-family: var(--font-en); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+.icon-cell { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+.icon-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.uid-cell { font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan); }
+.email-cell { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+.center { text-align: center; }
+.c-cyan { color: var(--cyan); font-weight: 700; }
+.c-green { color: var(--green); font-weight: 700; }
+.c-red { color: var(--red); font-weight: 700; }
+.c-yellow { color: var(--yellow); }
+
+.det-row td { padding: 0; }
+.det-inner {
+  padding: 16px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px; border-left: 3px solid rgba(6,182,212,0.35); background: rgba(6,182,212,0.02);
+}
+.det-lbl { font-family: var(--font-en); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 3px; }
+.det-val { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text); word-break: break-all; }
+.friend-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.ftag { font-family: var(--font-mono); font-size: 0.7rem; background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.3); color: var(--cyan); padding: 1px 7px; border-radius: 5px; }
+.expand-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 7px; cursor: pointer; font-size: 0.7rem; font-family: var(--font-en); transition: 0.2s; white-space: nowrap; }
+.expand-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.loading-msg { text-align: center; padding: 40px; color: var(--muted); font-family: var(--font-en); font-size: 0.88rem; letter-spacing: 0.08em; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="login-box">
+    <div class="login-title">Q-ROOM <span>ADMIN</span></div>
+    <div class="login-sub">
+      Q-Roomアカウントでログインしてください。<br>
+      管理者として登録されたアカウントのみアクセスできます。
+    </div>
+    <div class="err-box" id="login-err"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="admin-email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="admin-pw" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="btn-login" id="login-btn" onclick="adminLogin()">LOGIN</button>
+  </div>
+</div>
+
+<div id="admin-wrap">
+  <div class="adm-header">
+    <div class="adm-logo">Q-ROOM <span>ADMIN</span></div>
+    <div class="adm-user" id="adm-user-label"></div>
+    <button class="btn-sm btn-sm-pri" onclick="loadAllUsers()" style="margin-right:8px;">🔄 更新</button>
+    <button class="btn-sm btn-sm-danger" onclick="adminLogout()">LOGOUT</button>
+  </div>
+  <div class="adm-body">
+    <div class="gs-row">
+      <div class="gs-card"><div class="gs-val" id="gs-users">—</div><div class="gs-lbl">TOTAL USERS</div></div>
+      <div class="gs-card"><div class="gs-val" id="gs-games">—</div><div class="gs-lbl">TOTAL GAMES</div></div>
+      <div class="gs-card"><div class="gs-val" id="gs-correct">—</div><div class="gs-lbl">TOTAL CORRECT</div></div>
+      <div class="gs-card"><div class="gs-val" id="gs-wins">—</div><div class="gs-lbl">TOTAL WINS</div></div>
+    </div>
+    <div class="sec-head" style="margin-top:28px;">
+      <div class="sec-title">📢 全ユーザー一斉通知</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:28px;">
+      <div class="field">
+        <label>タイトル</label>
+        <input type="text" id="broadcast-title" placeholder="通知タイトル（例：メンテナンスのお知らせ）" maxlength="80">
+      </div>
+      <div class="field">
+        <label>メッセージ本文</label>
+        <textarea id="broadcast-body" placeholder="通知内容を入力…" rows="4" style="width:100%;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:var(--font-ja);font-size:0.95rem;outline:none;transition:all 0.3s;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-sm btn-sm-pri" onclick="sendBroadcastNotif()" id="broadcast-btn" style="padding:10px 24px;font-size:0.88rem;">📨 全員に送信</button>
+        <button class="btn-sm" onclick="testSendNotif()" style="padding:10px 18px;font-size:0.88rem;background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.3);color:var(--cyan);">🧪 自分にテスト送信</button>
+        <span id="broadcast-status" style="font-size:0.82rem;color:var(--muted);display:block;margin-top:8px;width:100%;"></span>
+      </div>
+    </div>
+    <div class="sec-head">
+      <div class="sec-title">USER LIST</div>
+      <input type="text" class="search-input" id="search-input" placeholder="ユーザーID・名前・メールで検索…" oninput="filterUsers(this.value)">
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>USER ID</th>
+            <th>NAME</th>
+            <th>EMAIL</th>
+            <th>称号</th>
+            <th class="center">GAMES</th>
+            <th class="center">WIN%</th>
+            <th class="center">CORRECT</th>
+            <th class="center">WRONG</th>
+            <th class="center">FRIENDS</th>
+            <th>REGISTERED</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="user-tbody">
+          <tr><td colspan="12" class="loading-msg">読み込み中…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA3xtGLVJwij2BTiiOk7DsNeF9hIOuZCyI",
+  authDomain: "q-room-fe8a6.firebaseapp.com",
+  databaseURL: "https://q-room-fe8a6-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "q-room-fe8a6",
+  storageBucket: "q-room-fe8a6.firebasestorage.app",
+  messagingSenderId: "151049149394",
+  appId: "1:151049149394:web:7a3ea6406454f6a87d460b"
+};
+
+const ADMIN_EMAILS = ["astro.root.quiz@gmail.com"];
+
+let db, auth, adminUser;
+let allUsers = [];
+
+firebase.initializeApp(FIREBASE_CONFIG);
+db = firebase.database();
+auth = firebase.auth();
+
+function showApp(view) {
+  document.getElementById('app').style.display = (view === 'login') ? 'flex' : 'none';
+  document.getElementById('admin-wrap').style.display = (view === 'admin') ? 'flex' : 'none';
+}
+
+showApp('login');
+
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    adminUser = null;
+    showApp('login');
+    return;
+  }
+  if (!ADMIN_EMAILS.includes(user.email)) {
+    await auth.signOut();
+    showErr('このアカウントには管理者権限がありません。<br><code style="font-family:var(--font-mono);font-size:0.82rem;">astro.root.quiz@gmail.com</code> でログインしてください。');
+    return;
+  }
+  adminUser = user;
+  document.getElementById('adm-user-label').textContent = user.email;
+  showApp('admin');
+  loadAllUsers();
+});
+
+function showErr(msg) {
+  const el = document.getElementById('login-err');
+  el.innerHTML = msg;
+  el.style.display = '';
+}
+
+async function adminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pw = document.getElementById('admin-pw').value;
+  const btn = document.getElementById('login-btn');
+  document.getElementById('login-err').style.display = 'none';
+  if (!email || !pw) { showErr('メールアドレスとパスワードを入力してください'); return; }
+  btn.disabled = true; btn.textContent = 'ログイン中…';
+  try {
+    await auth.signInWithEmailAndPassword(email, pw);
+  } catch(e) {
+    const msg = (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')
+      ? 'メールアドレスまたはパスワードが正しくありません'
+      : 'ログインに失敗しました: ' + e.message;
+    showErr(msg);
+  } finally {
+    btn.disabled = false; btn.textContent = 'LOGIN';
+  }
+}
+
+async function adminLogout() {
+  if (!confirm('ログアウトしますか？')) return;
+  await auth.signOut();
+}
+
+async function loadAllUsers() {
+  document.getElementById('user-tbody').innerHTML = '<tr><td colspan="12" class="loading-msg">読み込み中…</td></tr>';
+  document.getElementById('search-input').value = '';
+  try {
+    const [usersSnap, statsSnap, friendsSnap] = await Promise.all([
+      db.ref('users').once('value'),
+      db.ref('stats').once('value'),
+      db.ref('friends').once('value')
+    ]);
+    const users = usersSnap.val() || {};
+    const stats = statsSnap.val() || {};
+    const friends = friendsSnap.val() || {};
+
+    allUsers = Object.entries(users).map(([uid, u]) => ({
+      uid, ...u,
+      stats: stats[uid] || {},
+      friendUids: friends[uid] ? Object.keys(friends[uid]) : []
+    })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    let tg = 0, tc = 0, tw = 0;
+    allUsers.forEach(u => { tg += u.stats.totalGames||0; tc += u.stats.totalCorrect||0; tw += u.stats.wins||0; });
+    document.getElementById('gs-users').textContent = allUsers.length;
+    document.getElementById('gs-games').textContent = tg;
+    document.getElementById('gs-correct').textContent = tc;
+    document.getElementById('gs-wins').textContent = tw;
+    renderTable(allUsers);
+  } catch(e) {
+    // ユーザー一覧が取れなくてもブロードキャストはuserIndex経由で送れる旨を表示
+    document.getElementById('broadcast-status').style.color = 'var(--yellow)';
+    document.getElementById('broadcast-status').textContent = '⚠️ ユーザー一覧の読み込みに失敗しましたが、通知送信はuserIndex経由で実行できます';
+    let errMsg = esc(e.message);
+    if (e.message && e.message.includes('permission_denied')) {
+      errMsg = `
+        <strong>permission_denied エラー</strong><br>
+        Firebase Realtime Database のルールで管理者用の読み取りが拒否されています。<br><br>
+        Firebase コンソール → Realtime Database → ルール で以下を設定してください:<br>
+        <pre style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;margin-top:8px;font-size:0.78rem;text-align:left;overflow:auto;">{
+  "rules": {
+    "userIndex": {
+      ".read": true,
+      "$displayId": {
+        ".write": "auth != null"
+      }
+    },
+    "users": {
+      ".read": "auth.token.email === 'astro.root.quiz@gmail.com'",
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid"
+      }
+    },
+    "stats": {
+      ".read": "auth.token.email === 'astro.root.quiz@gmail.com'",
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid"
+      }
+    },
+    "friends": {
+      ".read": "auth.token.email === 'astro.root.quiz@gmail.com'",
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth.uid === $uid"
+      }
+    },
+    "notifications": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "friendRequests": {
+      "$uid": {
+        ".read": "auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    },
+    "rooms": {
+      ".read": "auth != null || true",
+      ".write": "auth != null || true"
+    },
+    "devNotice": {
+      ".read": true,
+      ".write": "auth.token.email === 'astro.root.quiz@gmail.com'"
+    }
+  }
+}</pre>
+        <strong>重要：</strong> <code>userIndex</code> は未認証でも読める必要があります（ユーザーIDログインのため）。`;
+    }
+    document.getElementById('user-tbody').innerHTML = `<tr><td colspan="12" class="loading-msg" style="color:var(--red);text-align:left;padding:24px;">${errMsg}</td></tr>`;
+  }
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleDateString('ja-JP') + ' ' + new Date(ts).toLocaleTimeString('ja-JP', {hour:'2-digit', minute:'2-digit'});
+}
+
+function renderTable(users) {
+  const tbody = document.getElementById('user-tbody');
+  if (users.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="12" class="loading-msg">ユーザーが見つかりません</td></tr>';
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const s = u.stats;
+    const wr = s.totalGames > 0 ? Math.round(s.wins / s.totalGames * 100) : 0;
+    const iconHtml = u.iconUrl
+      ? `<img src="${esc(u.iconUrl)}" class="icon-img">`
+      : `<span style="font-size:1.3rem;">${esc(u.icon||'👤')}</span>`;
+    return `
+    <tr id="row-${esc(u.uid)}">
+      <td><div class="icon-cell">${iconHtml}</div></td>
+      <td class="uid-cell">${esc(u.displayId||'?')}</td>
+      <td>${esc(u.name||'—')}</td>
+      <td class="email-cell">${esc(u.email||'—')}</td>
+      <td class="c-yellow">${esc(u.title||'—')}</td>
+      <td class="center">${s.totalGames||0}</td>
+      <td class="center c-green">${wr}%</td>
+      <td class="center c-cyan">${s.totalCorrect||0}</td>
+      <td class="center c-red">${s.totalWrong||0}</td>
+      <td class="center">${u.friendUids.length}</td>
+      <td style="font-size:0.72rem;color:var(--muted);white-space:nowrap;">${fmtDate(u.createdAt)}</td>
+      <td><button class="expand-btn" onclick="toggleDet('${esc(u.uid)}')">詳細 ▼</button></td>
+    </tr>
+    <tr id="det-${esc(u.uid)}" class="det-row" style="display:none;">
+      <td colspan="12">
+        <div class="det-inner">
+          <div><div class="det-lbl">Firebase UID</div><div class="det-val">${esc(u.uid)}</div></div>
+          <div><div class="det-lbl">Display ID</div><div class="det-val">${esc(u.displayId||'—')}</div></div>
+          <div><div class="det-lbl">Name</div><div class="det-val">${esc(u.name||'—')}</div></div>
+          <div><div class="det-lbl">Email</div><div class="det-val" style="color:var(--cyan);">${esc(u.email||'—')}</div></div>
+          <div><div class="det-lbl">Password</div><div class="det-val" style="color:var(--muted);font-size:0.72rem;">取得不可（Firebaseはハッシュ化保存）</div></div>
+          <div><div class="det-lbl">称号</div><div class="det-val">${esc(u.title||'—')}</div></div>
+          <div><div class="det-lbl">Icon</div><div class="det-val">${u.iconUrl?`<img src="${esc(u.iconUrl)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">`:esc(u.icon||'👤')}</div></div>
+          <div><div class="det-lbl">Total Games</div><div class="det-val">${s.totalGames||0}</div></div>
+          <div><div class="det-lbl">Wins (Win%)</div><div class="det-val" style="color:var(--green);">${s.wins||0} (${wr}%)</div></div>
+          <div><div class="det-lbl">Total Correct</div><div class="det-val" style="color:var(--cyan);">${s.totalCorrect||0}</div></div>
+          <div><div class="det-lbl">Total Wrong</div><div class="det-val" style="color:var(--red);">${s.totalWrong||0}</div></div>
+          <div><div class="det-lbl">Registered</div><div class="det-val">${fmtDate(u.createdAt)}</div></div>
+          <div style="grid-column:1/-1;">
+            <div class="det-lbl">Friends (${u.friendUids.length})</div>
+            <div class="friend-tags">
+              ${u.friendUids.length===0
+                ? '<span style="color:var(--muted);font-size:0.75rem;">フレンドなし</span>'
+                : u.friendUids.map(fid => {
+                    const fu = allUsers.find(x => x.uid === fid);
+                    if(fu) {
+                      const nm = fu.name ? ' (' + esc(fu.name) + ')' : '';
+                      return '<span class="ftag" title="Email: ' + esc(fu.email||'—') + '">' + esc(fu.displayId||'?') + nm + '</span>';
+                    }
+                    return '<span class="ftag" style="opacity:0.5;">' + fid.substring(0,10) + '…</span>';
+                  }).join('')}
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleDet(uid) {
+  const row = document.getElementById(`det-${uid}`);
+  const btn = document.querySelector(`#row-${uid} .expand-btn`);
+  const open = row.style.display === 'none';
+  row.style.display = open ? '' : 'none';
+  if (btn) btn.textContent = open ? '詳細 ▲' : '詳細 ▼';
+}
+
+function filterUsers(q) {
+  if (!q.trim()) { renderTable(allUsers); return; }
+  const ql = q.toLowerCase();
+  renderTable(allUsers.filter(u =>
+    (u.displayId||'').toLowerCase().includes(ql) ||
+    (u.name||'').toLowerCase().includes(ql) ||
+    (u.email||'').toLowerCase().includes(ql) ||
+    (u.title||'').toLowerCase().includes(ql)
+  ));
+}
+
+async function _getTargetUids(statusEl) {
+  // allUsers から取得、なければ userIndex から取得
+  let uids = allUsers.map(u => u.uid);
+  if (uids.length === 0) {
+    if (statusEl) { statusEl.style.color = 'var(--muted)'; statusEl.textContent = 'userIndex からユーザー一覧を取得中…'; }
+    const idxSnap = await db.ref('userIndex').once('value');
+    idxSnap.forEach(child => {
+      const val = child.val();
+      const uid = (val && typeof val === 'object') ? val.uid : val;
+      if (uid && typeof uid === 'string' && !uids.includes(uid)) uids.push(uid);
+    });
+  }
+  return uids;
+}
+
+async function _sendNotifToUids(uids, title, body, statusEl) {
+  const ts = firebase.database.ServerValue.TIMESTAMP;
+  let ok = 0, fail = 0;
+  const errors = [];
+  const BATCH = 10;
+  for (let i = 0; i < uids.length; i += BATCH) {
+    const batch = uids.slice(i, i + BATCH);
+    const results = await Promise.allSettled(
+      batch.map(uid => db.ref(`notifications/${uid}`).push({ type:'devAnnounce', title, body, read:false, ts }))
+    );
+    results.forEach((r, idx) => {
+      if (r.status === 'fulfilled') { ok++; }
+      else {
+        fail++;
+        const msg = r.reason?.message || String(r.reason);
+        errors.push(`${batch[idx]}: ${msg}`);
+        if (msg.toLowerCase().includes('permission_denied') && errors.length === 1) {
+          console.error(`[broadcast] PERMISSION_DENIED — Firebase RulesでnotificationsのwriteをarticAuth != nullに変更してください`);
+        }
+      }
+    });
+    if (statusEl) statusEl.textContent = `送信中… (${ok} / ${uids.length})`;
+  }
+  return { ok, fail, errors };
+}
+
+async function testSendNotif() {
+  if (!adminUser) { alert('ログインしていません'); return; }
+  const title = document.getElementById('broadcast-title').value.trim() || 'テスト通知';
+  const body = document.getElementById('broadcast-body').value.trim() || '管理者からのテスト送信です。';
+  const statusEl = document.getElementById('broadcast-status');
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = `自分 (${adminUser.uid.slice(0,8)}…) にテスト送信中…`;
+  try {
+    const { ok, fail, errors } = await _sendNotifToUids([adminUser.uid], title, body, null);
+    if (ok > 0) {
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = `✅ テスト送信成功！ Q-Roomで通知を確認してください。`;
+    } else {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = `❌ テスト送信失敗: ${errors[0] || '不明なエラー'}`;
+    }
+  } catch (e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `❌ エラー: ${e.message}`;
+  }
+}
+
+async function sendBroadcastNotif() {
+  if (!adminUser) { alert('ログインしていません'); return; }
+  const title = document.getElementById('broadcast-title').value.trim();
+  const body = document.getElementById('broadcast-body').value.trim();
+  const statusEl = document.getElementById('broadcast-status');
+  const btn = document.getElementById('broadcast-btn');
+
+  if (!title) { statusEl.style.color = 'var(--red)'; statusEl.textContent = 'タイトルを入力してください'; return; }
+  if (!body) { statusEl.style.color = 'var(--red)'; statusEl.textContent = '本文を入力してください'; return; }
+
+  let targetUids;
+  try {
+    targetUids = await _getTargetUids(statusEl);
+  } catch (e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `❌ ユーザー一覧取得失敗: ${e.message}`;
+    return;
+  }
+
+  if (targetUids.length === 0) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = '送信対象ユーザーが見つかりません（userIndexが空）';
+    return;
+  }
+
+  if (!confirm(`${targetUids.length} 人全員に通知を送信しますか？\n\nタイトル: ${title}\n本文: ${body}`)) return;
+
+  btn.disabled = true;
+  statusEl.style.color = 'var(--muted)';
+  statusEl.textContent = `送信中… (0 / ${targetUids.length})`;
+
+  try {
+    const { ok, fail, errors } = await _sendNotifToUids(targetUids, title, body, statusEl);
+    if (fail === 0) {
+      statusEl.style.color = 'var(--green)';
+      statusEl.textContent = `✅ ${ok} 人に送信完了`;
+      document.getElementById('broadcast-title').value = '';
+      document.getElementById('broadcast-body').value = '';
+    } else if (ok === 0) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = `❌ 全件失敗 (${fail}件): ${errors[0] || ''}`;
+    } else {
+      statusEl.style.color = 'var(--yellow)';
+      statusEl.textContent = `⚠️ ${ok}人成功 / ${fail}件失敗: ${errors[0] || ''}`;
+    }
+  } catch (e) {
+    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = `❌ 送信エラー: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

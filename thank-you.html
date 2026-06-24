@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Thank You - Q-Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg-color: #09090b;
+  --surface-color: rgba(24, 24, 27, 0.65);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --cyan: #06b6d4;
+  --text-main: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --font-en: 'Inter', sans-serif;
+  --font-ja: 'Noto Sans JP', sans-serif;
+  --glass-blur: blur(16px);
+}
+html, body { min-height: 100vh; }
+body {
+  background-color: var(--bg-color);
+  background-image: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 60%);
+  background-attachment: fixed;
+  color: var(--text-main);
+  font-family: var(--font-ja);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.container {
+  text-align: center;
+  background: var(--surface-color);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 60px 40px;
+  max-width: 90%;
+  width: 500px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(6, 182, 212, 0.1);
+  animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.icon {
+  font-size: 4rem;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.title {
+  font-family: var(--font-en);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--cyan);
+  margin-bottom: 16px;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+}
+.message {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--cyan), #0284c7);
+  color: #fff;
+  padding: 18px 40px;
+  border-radius: 14px;
+  font-family: var(--font-en);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn:hover {
+  box-shadow: 0 12px 32px rgba(6, 182, 212, 0.4);
+  transform: translateY(-3px);
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">✨</div>
+    <div class="title">THANK YOU</div>
+    <div class="message">
+      送信が完了しました。<br>
+      貴重なご意見・ご報告をありがとうございます。
+    </div>
+    <a href="https://astro-root.com/q-room/" class="btn">BACK TO TOP</a>
+  </div>
+</body>
+</html>

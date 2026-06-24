@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-Room ユーザーマニュアル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/manual.css">
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="hero">
+    <div class="hero-logo">Q-Room</div>
+    <div class="hero-sub">User Manual</div>
+    <p class="hero-desc">DiscordやZoomなどの通話アプリと組み合わせて、本格的なクイズ対戦を手軽に楽しめるリアルタイムクイズシステムです。</p>
+  </div>
+
+  <nav class="toc">
+    <div class="toc-title">目次</div>
+    <ul class="toc-list">
+      <li><a href="#start"><span class="toc-num">01</span>はじめ方</a></li>
+      <li><a href="#room"><span class="toc-num">02</span>部屋の操作</a></li>
+      <li><a href="#buttons"><span class="toc-num">03</span>ボタンの説明</a></li>
+      <li><a href="#rules"><span class="toc-num">04</span>ルール一覧</a></li>
+      <li><a href="#chat"><span class="toc-num">05</span>チャット機能</a></li>
+      <li><a href="#status"><span class="toc-num">06</span>プレイヤーの状態</a></li>
+      <li><a href="#notes"><span class="toc-num">07</span>注意事項</a></li>
+      <li><a href="#account"><span class="toc-num">08</span>アカウント登録（強く推奨）</a></li>
+      <li><a href="#faq"><span class="toc-num">09</span>よくある質問</a></li>
+    </ul>
+  </nav>
+
+  <section class="section" id="start">
+    <div class="section-label">01</div>
+    <h2 class="section-title">はじめ方</h2>
+    <div class="section-body">
+      <p>Q-Roomはアカウント登録不要で、すぐにクイズ対戦を始められます。部屋を作る人と参加する人で手順が異なります。</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">プレイヤー名を入力する</div>
+          <div class="step-desc">他のプレイヤーに表示される名前を入力します。最大20文字。前回使った名前は自動入力されます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">ルームIDを決める（部屋を作る場合）</div>
+          <div class="step-desc">5桁の数字を入力するか、🎲ボタンでランダム生成します。そのIDを参加者に共有しましょう。なお、空欄の場合は自動で生成されます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">CREATE または JOIN を押す</div>
+          <div class="step-desc"><span class="highlight">CREATE ROOM</span> で新しい部屋を作成。<span class="highlight">JOIN ROOM</span> で既存の部屋に参加。入室時にRoom IDとURLが表示されるので、仲間に共有できます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">ルールを設定する</div>
+          <div class="step-desc">右上の⚙️（設定）アイコンからルールと各種パラメータを変更できます。参加者全員にリアルタイムで反映されます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">問題を出して◯✕を押す</div>
+          <div class="step-desc">出題者が問題を読み上げ、プレイヤーは自身の正誤に合わせて手元の◯または✕を押します。スコアや勝敗は自動計算されます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="room">
+    <div class="section-label">02</div>
+    <h2 class="section-title">部屋の操作</h2>
+    <div class="section-body">
+      <p>入室後はリアルタイムで全員の状態が同期されます。ヘッダーにはルーム情報と主要機能へのアクセスが集約されています。</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">💬</div>
+        <div class="step-body">
+          <div class="step-title">チャットアイコン</div>
+          <div class="step-desc">チャットドロワーを開閉します。未読メッセージがあると赤いバッジで件数が表示されます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">✉</div>
+        <div class="step-body">
+          <div class="step-title">フィードバックアイコン</div>
+          <div class="step-desc">開発者へのフィードバック送信やSNS・公式サイトへのリンクです。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">⚙</div>
+        <div class="step-body">
+          <div class="step-title">設定アイコン</div>
+          <div class="step-desc">ルール変更・パラメータ設定・URL/IDコピー・スコアリセット・ゲーム終了を行えます。設定の変更は即座に全員に反映されます。</div>
+        </div>
+      </div>
+    </div>
+    <div class="caution-list" style="margin-top:24px;">
+      <div class="caution info">
+        <div class="caution-icon">🔗</div>
+        <div>
+          <div class="caution-title">URLで直接参加できます</div>
+          <div class="caution-body">設定画面の「Copy URL」またはシェアモーダルのURLを共有すると、受け取った相手はURLを開くだけでルームIDが自動入力されます。</div>
+        </div>
+      </div>
+      <div class="caution warn">
+        <div class="caution-icon">⏱</div>
+        <div>
+          <div class="caution-title">部屋の自動削除（有効期限）</div>
+          <div class="caution-body">以下のいずれかの条件で部屋が自動削除され、そのルームIDが再利用可能になります。<br>
+            <span class="hl-yellow">① 全員が退室してから5分以上</span>誰もいない状態が続いた場合<br>
+            <span class="hl-yellow">② 誰かがいても1時間以上</span>操作（スコア更新など）がない状態が続いた場合<br>
+            長時間放置する場合はご注意ください。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="buttons">
+    <div class="section-label">03</div>
+    <h2 class="section-title">ボタンの説明</h2>
+    <div class="section-body">
+      <p>プレイ中や設定画面で使用するボタンの機能一覧です。</p>
+    </div>
+    <div class="buttons-doc">
+      <div class="btn-doc">
+        <div class="btn-icon o">◯</div>
+        <div>
+          <div class="btn-doc-title">◯（正解）</div>
+          <div class="btn-doc-desc">正解したときに押します。ルールに応じてスコアが加算・連答カウントが増加します。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon x">✕</div>
+        <div>
+          <div class="btn-doc-title">✕（誤答）</div>
+          <div class="btn-doc-desc">不正解（お手付き）のときに押します。ルールによってはペナルティ（休み・失格・スコア減）が発生します。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);font-size:1rem;">休み</div>
+        <div>
+          <div class="btn-doc-title">休み消化</div>
+          <div class="btn-doc-desc">FreezeやM◯N休などのルールで「休み」が付与された場合に表示されます。残り休み数が表示され、押すたびに1回消化します。休みが残っている間は◯✕ボタンは表示されません。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon undo" style="font-size:1.1rem;">↩</div>
+        <div>
+          <div class="btn-doc-title">↩ UNDO</div>
+          <div class="btn-doc-desc">直前の◯✕操作を最大5回まで取り消せます。操作履歴がない場合はグレーアウトされます。自分のスコアのみ対象です。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon watch" style="font-size:1rem;">👀</div>
+        <div>
+          <div class="btn-doc-title">👀 WATCH / 🎮 JOIN</div>
+          <div class="btn-doc-desc">観戦モードと参加モードを切り替えます。観戦中は◯✕ボタンが非表示になりスコアに影響しません。途中参加や一時抜けに使えます。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon leave" style="font-size:1rem;">🚪</div>
+        <div>
+          <div class="btn-doc-title">🚪 LEAVE</div>
+          <div class="btn-doc-desc">部屋から完全に退室します。自分のプレイヤーデータが削除され、トップ画面へ戻ります。再入室すると新しいプレイヤーとして追加されます。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon reset" style="font-size:1rem;">🔄</div>
+        <div>
+          <div class="btn-doc-title">🔄 RESET SCORES（設定内）</div>
+          <div class="btn-doc-desc">全員のスコア（◯✕・得点・休み・連答数）をリセットして再スタートします。プレイヤーは退室しません。セット間の切り替えに使用します。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon finish" style="font-size:1rem;">🏁</div>
+        <div>
+          <div class="btn-doc-title">🏁 FINISH GAME（設定内）</div>
+          <div class="btn-doc-desc">ゲームを強制終了してリザルト画面へ全員を移行します。全員が結果を確認できます。「Back to ROOM」で同じ部屋に戻ることも可能です。</div>
+        </div>
+      </div>
+      
+      <div class="divider" style="margin: 20px 0;"></div>
+      <h3 style="font-size: 0.85rem; color: var(--cyan); margin-bottom: 12px;">タイマー操作（Time Raceルール時のみ出現）</h3>
+      
+      <div class="btn-doc">
+        <div class="btn-icon" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);font-size:1rem;color:var(--green)">▶</div>
+        <div>
+          <div class="btn-doc-title">▶ START</div>
+          <div class="btn-doc-desc">タイマーを開始（または一時停止から再開）します。誤操作防止のため、押した際に確認のダイアログが出ます。5秒のカウントダウン後にスタートします。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon" style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);font-size:1rem;color:var(--yellow)">⏸</div>
+        <div>
+          <div class="btn-doc-title">⏸ STOP</div>
+          <div class="btn-doc-desc">稼働中のタイマーを一時停止します。確認ダイアログののち、即座に時間がストップします。</div>
+        </div>
+      </div>
+      <div class="btn-doc">
+        <div class="btn-icon" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);font-size:1rem;color:var(--red)">↺</div>
+        <div>
+          <div class="btn-doc-title">↺ RESET</div>
+          <div class="btn-doc-desc">タイマーを初期設定の時間にリセットします。（※スコアのリセットとは異なります）</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="rules">
+    <div class="section-label">04</div>
+    <h2 class="section-title">ルール一覧</h2>
+    <div class="section-body">
+      <p>様々なクイズ形式に対応できるよう全16種類のルールを用意しています。設定画面からいつでも変更でき、変更は即座に全員に適用されます。</p>
+    </div>
+    <div class="rules-grid">
+
+      <div class="rule-card">
+        <span class="rule-name tag-c">m◯n×</span>
+        <div class="rule-summary">クイズにおける最も基本的なルールです。m問正解すれば勝ち抜けとなり、n問誤答（お手付き）すると失格（トビ）になります。まずはこのルールから遊んでみましょう。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × m → 勝ち抜け</span>
+          <span class="formula-lose">✕ × n → 失格</span>
+          <span class="formula-note">デフォルト: 5◯2×</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-c">Free</span>
+        <div class="rule-summary">勝ち抜けや失格の判定が行われない、自由な練習用モードです。エンドレスでクイズを楽しみたい場合や、スコアだけを記録し続けたい場合に使用します。</div>
+        <div class="rule-formula">
+          <span class="formula-note">勝敗判定なし</span>
+        </div>
+      </div>
+      
+      <div class="rule-card">
+        <span class="rule-name tag-c">NewYork</span>
+        <div class="rule-summary">正解で加点、誤答で減点されるシンプルなポイント制ルールです。目標スコア(win)に到達すると勝ち抜け、規定のマイナススコア(lose)に達すると失格となります。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
+          <span class="formula-lose">スコア ≤ lose → 失格</span>
+          <span class="formula-note">デフォルト: 1問正解+1、誤答-1、10点勝ち抜け、-10点失格</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-c">連答付き</span>
+        <div class="rule-summary">正解したあとに連続して正解するとボーナスポイントが加算されるルールです。<br>【加速】2連答目以降はずっと＋2点になります。誤答でリセットされます。<br>【等速】1問正解で「連答権」を獲得し、次問正解で＋2点になりますが、そこで連答権は消費されます。自分が誤答するか、他の人が正解した場合も連答権は消滅します。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
+          <span class="formula-lose">✕ × n → 失格</span>
+          <span class="formula-note">連答中は+2点、通常時は+1点 / 加速・等速を選択可能</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-c">up-down</span>
+        <div class="rule-summary">正解すると1点プラスされますが、1度でも誤答するとスコアが0点にリセットされてしまうシビアなルールです。崩れても上り直すことができますが、n回誤答での失格も設定可能です。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
+          <span class="formula-lose">✕ × n → 失格</span>
+          <span class="formula-note">誤答でスコアは0にリセット</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-m">by</span>
+        <div class="rule-summary">スコアが「正解数 × (定数 − 誤答数)」で計算されるルールです。誤答するたびに1問正解あたりの価値が下がっていくため、お手付きのリスクが徐々に高まります。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × (m − ✕) ≥ m² → 勝ち抜け</span>
+          <span class="formula-lose">✕ × n → 失格</span>
+          <span class="formula-note">デフォルト: 定数5、失格3×</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-g">Freeze</span>
+        <div class="rule-summary">誤答すると、その時点での自分の「誤答累計数」と同じ回数だけ解答権が失われる（休みになる）ルールです。休みの間は◯✕ボタンが押せません。失格はなく最後までクイズに参加できます。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × m → 勝ち抜け</span>
+          <span class="formula-lose">誤答 → 誤答累計数だけ休み</span>
+          <span class="formula-note">失格なし（n=0で設定）</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-g">m◯n休</span>
+        <div class="rule-summary">誤答した際のリスクが常に一定のルールです。誤答すると固定でn回の「休み」が与えられ、その間は解答に参加できません。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × m → 勝ち抜け</span>
+          <span class="formula-lose">✕ → n休み</span>
+          <span class="formula-note">デフォルト: 5◯3休</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-y">Swedish</span>
+        <div class="rule-summary">誤答ペナルティが現在の正解数に応じて重くなっていく上級者向けルールです。正解を重ねるほど、1回の誤答で増える✕の数（ペナルティ）が大きくなります。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × m → 勝ち抜け</span>
+          <span class="formula-lose">誤答ペナルティ ＝ √(8◯+1) 切上</span>
+          <span class="formula-note">デフォルト: 10◯10×</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-y">連誤答付き</span>
+        <div class="rule-summary">連続して誤答するとペナルティが倍増するルールです。2回連続で間違えると一気に2✕が追加されます。一度正解すれば連誤答状態はリセットされます。</div>
+        <div class="rule-formula">
+          <span class="formula-win">◯ × m → 勝ち抜け</span>
+          <span class="formula-lose">連誤答中は2倍×カウント</span>
+          <span class="formula-note">デフォルト: 5◯3×</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-p">divide</span>
+        <div class="rule-summary">持ち点（初期値）からスタートし、正解で固定点が加算されますが、誤答すると「現在のスコア ÷ 誤答累計数」にまで持ち点が激減してしまいます。スコアが1未満になると失格です。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
+          <span class="formula-lose">スコア &lt; 1 → 失格</span>
+          <span class="formula-note">デフォルト: 初期10、加点+10、勝ち抜け100</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-p">m hits Combo</span>
+        <div class="rule-summary">連続正解するほど獲得スコアが加速するルールです。1問目は1点、2連答目は2点、3連答目は3点…と増えますが、誤答するとコンボは途切れてしまいます。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
+          <span class="formula-lose">誤答でコンボリセット、n回誤答で失格</span>
+          <span class="formula-note">デフォルト: 勝ち抜け10点</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-m">アタック風サバイバル</span>
+        <div class="rule-summary">全員がHP（ライフ）を持った状態で戦うサバイバルルールです。自分が正解すると自分以外の全員にダメージを与え（自身の回復も可能）、誤答すると自分にダメージが入ります。規定の人数まで生き残れば勝利です。</div>
+        <div class="rule-formula">
+          <span class="formula-win">規定人数まで生き残る</span>
+          <span class="formula-lose">HP ≤ 0 → 失格</span>
+          <span class="formula-note">デフォルト: 初期HP20</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-m">LuckyShot</span>
+        <div class="rule-summary">クイズの実力だけでなく「運」も絡むルールです。正解・誤答時に、設定された最大値までのランダムな点数が加算・減算されます。</div>
+        <div class="rule-formula">
+          <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
+          <span class="formula-lose">スコア ≤ lose → 失格</span>
+          <span class="formula-note">デフォルト: 乱数最大10</span>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <span class="rule-name tag-g">螺旋階段</span>
+        <div class="rule-summary">スコアの絶対値ではなく、他プレイヤーとの「相対的な位置」が重要になる特殊ルールです。単独トップ（最上位）にいる状態で連続正解すると勝ち抜け、単独ビリ（最下位）で連続誤答すると失格になります。</div>
+        <div class="rule-formula">
+          <span class="formula-win">最上位でN連答 → 勝ち抜け</span>
+          <span class="formula-lose">最下位でN連誤 → 失格</span>
+          <span class="formula-note">デフォルト: 上位3連答 / 下位3連誤</span>
+        </div>
+      </div>
+      
+      <div class="rule-card">
+        <span class="rule-name tag-p">Time Race</span>
+        <div class="rule-summary">上部に表示されるタイマーを使い、制限時間内にどれだけスコアを稼げるかを競うルールです。タイマーが動いている間のみ解答が行え、時間切れ時に最もスコアが高かったプレイヤーが勝利となります。</div>
+        <div class="rule-formula">
+          <span class="formula-win">時間切れ時にスコアが単独または同点トップ → WIN</span>
+          <span class="formula-note">デフォルト: 5分、正解+1、誤答-1</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" id="chat">
+    <div class="section-label">05</div>
+    <h2 class="section-title">チャット機能</h2>
+    <div class="section-body">
+      <p>ゲーム中にリアルタイムでメッセージのやり取りができます。ヘッダーの💬アイコンから開閉できます。</p>
+    </div>
+    <div class="chat-features">
+      <div class="chat-feat">
+        <div class="chat-feat-icon">💬</div>
+        <div class="chat-feat-title">テキストチャット</div>
+        <div class="chat-feat-desc">テキスト入力後Enterまたは送信ボタンで投稿。自分の発言は右側、他者は左側に表示。200文字まで。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🎉</div>
+        <div class="chat-feat-title">スタンプ</div>
+        <div class="chat-feat-desc">👍🎉😂🔥などのスタンプをワンタップで送信。テキスト入力欄の上に並んでいます。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🔔</div>
+        <div class="chat-feat-title">未読バッジ</div>
+        <div class="chat-feat-desc">チャットを閉じている間に届いたメッセージの件数が💬アイコンに赤いバッジで表示されます。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">📢</div>
+        <div class="chat-feat-title">システムメッセージ</div>
+        <div class="chat-feat-desc">誰かが入室・退室したタイミングで自動的に通知メッセージが表示されます。</div>
+      </div>
+    </div>
+    <div class="caution-list" style="margin-top:20px;">
+      <div class="caution info">
+        <div class="caution-icon">📜</div>
+        <div>
+          <div class="caution-title">履歴の保持</div>
+          <div class="caution-body">メッセージはルームが存在する限り保持されます（最新100件）。ルームが削除されると消えます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="status">
+    <div class="section-label">06</div>
+    <h2 class="section-title">プレイヤーの状態</h2>
+    <div class="section-body">
+      <p>プレイヤーカードの表示や色でステータスを確認できます。</p>
+    </div>
+    <table class="badge-table">
+      <thead>
+        <tr>
+          <th>表示</th>
+          <th>意味</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(6,182,212,0.2);color:#06b6d4;border:1px solid rgba(6,182,212,0.4);">シアン枠</span></td>
+          <td>自分（YOU）のカード。操作中のプレイヤー。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(16,185,129,0.2);color:#10b981;border:1px solid rgba(16,185,129,0.4);">WIN</span></td>
+          <td>勝ち抜け済み。緑のカードで表示。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.4);">LOSE</span></td>
+          <td>失格（トビ）。グレースケールで半透明表示。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(255,255,255,0.05);color:#a1a1aa;border:1px dashed rgba(255,255,255,0.2);">破線枠</span></td>
+          <td>観戦中（WATCHモード）。スコアに影響なし。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(245,158,11,0.15);color:#f59e0b;">休:N</span></td>
+          <td>休みがN回残っている状態。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(6,182,212,0.1);color:#06b6d4;">連:N</span></td>
+          <td>N回連続正解中のコンボ数。</td>
+        </tr>
+        <tr>
+          <td><span class="badge-sample" style="background:rgba(239,68,68,0.1);color:#ef4444;">DAdv!</span></td>
+          <td>連誤答付きルールで連誤答中の状態。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section" id="notes">
+    <div class="section-label">07</div>
+    <h2 class="section-title">注意事項</h2>
+    <div class="caution-list">
+      <div class="caution warn">
+        <div class="caution-icon">⚠️</div>
+        <div>
+          <div class="caution-title">スコアは自己申告制です</div>
+          <div class="caution-body">◯✕ボタンは各プレイヤーが自分で押します。不正な操作を防ぐ仕組みはないため、信頼できるメンバー同士での利用を前提としています。</div>
+        </div>
+      </div>
+      <div class="caution warn">
+        <div class="caution-icon">🔄</div>
+        <div>
+          <div class="caution-title">ルール変更はゲーム中でも即時反映されます</div>
+          <div class="caution-body">設定画面でルールやパラメータを変更すると、全員にリアルタイムで適用されます。ゲーム途中での変更はスコアの整合性に影響する場合があるため注意してください。</div>
+        </div>
+      </div>
+      <div class="caution info">
+        <div class="caution-icon">👤</div>
+        <div>
+          <div class="caution-title">タブを閉じても自動退室はされません</div>
+          <div class="caution-body">誤ってブラウザのタブを閉じてしまっても、プレイヤーのデータやスコアはそのまま部屋に残ります。同じブラウザ・端末で再アクセスすれば元の状態から復帰できます。完全にゲームから抜ける場合は、必ず「LEAVE」ボタンを押して退室してください。</div>
+        </div>
+      </div>
+      <div class="caution info">
+        <div class="caution-icon">🌐</div>
+        <div>
+          <div class="caution-title">インターネット接続が必要です</div>
+          <div class="caution-body">Q-RoomはFirebase Realtime Databaseを使用したリアルタイム同期システムです。通信が不安定な環境では操作が反映されない場合や、タイマーのラグが生じる場合があります。</div>
+        </div>
+      </div>
+      <div class="caution warn">
+        <div class="caution-icon">📱</div>
+        <div>
+          <div class="caution-title">同時接続数の制限があります</div>
+          <div class="caution-body">無料プランのデータベースを利用しているため、サービス全体での同時接続数は100までです。極端に多人数での同時利用は動作が不安定になる場合があります。</div>
+        </div>
+      </div>
+      <div class="caution warn">
+        <div class="caution-icon">⏳</div>
+        <div>
+          <div class="caution-title">長時間放置すると部屋が削除されます</div>
+          <div class="caution-body">部屋に誰もいない状態が<span class="hl-yellow">5分以上</span>続いた場合、または誰かいても<span class="hl-yellow">1時間以上</span>スコア操作などの更新がない場合、部屋は自動的に削除されます。長時間の休憩を挟む場合は、戻ってから操作（◯✕など）を1回行うことで有効期限がリセットされます。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="account">
+    <div class="section-label">08</div>
+    <h2 class="section-title">アカウント登録（強く推奨！）</h2>
+    <div class="section-body">
+      <p>Q-Roomはアカウントなしでも遊べますが、<span class="highlight">アカウントを作ると体験がまるごとグレードアップ</span>します。無料・メールアドレスのみで登録できます。ぜひ作ってみてください。</p>
+    </div>
+
+    <div class="caution info" style="margin-top:24px;">
+      <div class="caution-icon">🌟</div>
+      <div>
+        <div class="caution-title">登録は無料・30秒で完了</div>
+        <div class="caution-body">トップ画面右上の人型アイコン → 「REGISTER」タブから登録できます。必要なのはメールアドレス・ユーザーID・パスワードだけです。</div>
+      </div>
+    </div>
+
+    <div class="chat-features" style="margin-top:28px;">
+      <div class="chat-feat">
+        <div class="chat-feat-icon">👥</div>
+        <div class="chat-feat-title">フレンド機能</div>
+        <div class="chat-feat-desc">ユーザーIDでフレンド申請・承認ができます。フレンドが部屋を作ると通知が届くので、「一緒にやろう！」のやりとりがゼロになります。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🔔</div>
+        <div class="chat-feat-title">プッシュ通知</div>
+        <div class="chat-feat-desc">フレンドからの招待・フレンド申請をロック画面にも通知します。アプリを開いていなくてもすぐ気づけます。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">📊</div>
+        <div class="chat-feat-title">対戦成績の記録</div>
+        <div class="chat-feat-desc">正解数・誤答数・勝利数・勝率がアカウントに蓄積されます。プレイを重ねるほど自分の成長が見える！</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🎨</div>
+        <div class="chat-feat-title">プロフィールのカスタマイズ</div>
+        <div class="chat-feat-desc">絵文字アイコンや画像アイコン、称号テキストを設定できます。部屋内のプレイヤーカードにリアルタイム反映されます。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🚀</div>
+        <div class="chat-feat-title">フレンドへの招待</div>
+        <div class="chat-feat-desc">部屋に入った状態でフレンド一覧から「招待」ボタンを押すだけ。面倒なID共有なしに仲間を呼び込めます。</div>
+      </div>
+      <div class="chat-feat">
+        <div class="chat-feat-icon">🏅</div>
+        <div class="chat-feat-title">ユーザーID（固定表示名）</div>
+        <div class="chat-feat-desc">ゲスト参加では毎回名前を入力しますが、アカウントがあれば前回の名前が自動入力。フレンドにも固定IDで覚えてもらえます。</div>
+      </div>
+    </div>
+
+    <div class="steps" style="margin-top:32px;">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">トップ画面の人型アイコンをタップ</div>
+          <div class="step-desc">右上の <span class="highlight">👤 アイコン</span> をタップしてアカウント画面を開きます。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">「REGISTER」タブを選んで情報を入力</div>
+          <div class="step-desc">ユーザーID（半角英数字・_）、メールアドレス、パスワード（英字＋数字＋記号 8文字以上）を入力して登録します。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">確認メールのリンクをクリック</div>
+          <div class="step-desc">登録したメールアドレスに確認メールが届きます。メール内のリンクをクリックして認証を完了させましょう。</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">プロフィールを設定してフレンドを探す</div>
+          <div class="step-desc">アカウント画面でアイコン・称号を設定したら、フレンドのユーザーIDを検索して申請しましょう。承認されたらすぐに招待・通知が使えます。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="caution warn" style="margin-top:28px;">
+      <div class="caution-icon">⚠️</div>
+      <div>
+        <div class="caution-title">ゲスト参加との違い</div>
+        <div class="caution-body">アカウントなし（ゲスト）でも部屋の作成・参加・◯✕入力はすべて使えます。ただし成績記録・フレンド・プッシュ通知はアカウント登録が必要です。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="section-label">09</div>
+    <h2 class="section-title">よくある質問</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>ルームIDを忘れてしまいました</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">設定画面（⚙アイコン）の「Copy ID」ボタンで現在のIDをコピーできます。また「Copy URL」でURLをコピーして共有すれば、相手はIDを入力せずに参加できます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>誤って◯または✕を押してしまいました</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">「↩ UNDO」ボタンで直前の操作を取り消せます。最大5回まで遡ることができます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>観戦だけしたい（スコアに含めたくない）</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">「👀 WATCH」ボタンを押すと観戦モードに切り替わります。◯✕ボタンが非表示になり、スコアに影響しません。「🎮 JOIN」で再参加できます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>別の人のスコアを修正したい</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">他のプレイヤーのスコアを個別に修正する機能はありません。全員リセット（🔄 RESET SCORES）してやり直すか、誤った操作をしたプレイヤー本人にUNDOを使ってもらう必要があります。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>ゲームを途中で終了したい</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">設定画面の「🏁 FINISH GAME」で強制終了できます。全員のリザルト画面が表示されます。「Back to ROOM」で同じ部屋に戻って続けることもできます。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>名前を変更したい</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">入室後に名前を変更する機能は現在ありません。一度「🚪 LEAVE」ボタンで退室し、最初の画面で新しい名前を入力してから「JOIN ROOM」で再入室してください。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>何人まで参加できますか</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">人数制限は設けていませんが、データベース無料プランの同時接続100人というシステム全体の制限があります。また、参加者が増えるほど画面が長くなりスクロール操作が必要になります。現実的には10〜20人程度でのプレイを推奨します。</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          <span>部屋が消えてしまいました。なぜですか？</span>
+          <span class="faq-arrow">▾</span>
+        </div>
+        <div class="faq-a">以下の2つの条件のいずれかで部屋は自動削除されます。① 全員が退室してから5分以上誰もいない状態が続いた場合、② 誰かいても1時間以上スコア操作などの更新がない場合です。長時間の休憩を挟む際は戻ってから◯✕などを1回操作すると有効期限がリセットされます。</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">Q-Room</div>
+    <div class="footer-links">
+      <a href="https://astro-root.com/q-room/">アプリを開く</a>
+      <a href="https://twitter.com/astro_root" target="_blank">Twitter</a>
+      <a href="https://astro-root.com/" target="_blank">公式サイト</a>
+    </div>
+    <div class="footer-copy">© astro-root.com</div>
+  </footer>
+
+</div>
+
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script src="js/manual.js"></script>
+</body>
+</html>

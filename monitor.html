@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q-Room Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/monitor.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="logo-wrap">
+      <div class="logo">Q-ROOM</div>
+      <div class="logo-tag">MONITOR</div>
+    </div>
+    <div class="status-row">
+      <div class="dot" id="dot"></div>
+      <div class="status-text" id="status-text">CONNECTING...</div>
+      <div class="next-refresh" id="next-refresh"></div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠ 計測について：</strong>
+    「推定ストレージ」は現在の <code>/rooms/</code> データのJSONサイズです。Firebase の正確な累計ダウンロード量・全体read数は
+    <a href="https://console.firebase.google.com/project/q-room-fe8a6/usage" target="_blank" style="color:var(--yellow)">Firebase Console → 使用状況</a>
+    で確認してください。セッションread数はこのページを開いてからの取得回数です。
+  </div>
+
+  <div id="error-box" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.5);border-radius:14px;padding:18px 22px;margin-bottom:24px;">
+    <div style="font-family:var(--en);font-size:0.8rem;font-weight:700;color:var(--red);letter-spacing:0.15em;margin-bottom:8px;">❌ ERROR</div>
+    <div id="error-msg" style="font-family:var(--mono);font-size:0.82rem;color:#fca5a5;line-height:1.7;"></div>
+    <div style="margin-top:12px;font-size:0.78rem;color:var(--muted);line-height:1.7;">
+      よくある原因：<br>
+      ① Firebase セキュリティルールで <code>/rooms</code> への読み取りが拒否されている<br>
+      ② ネットワーク接続の問題（VPN・ファイアウォール等）<br>
+      ③ ローカルファイルとして開いている場合、Firebaseが接続できないことがある
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:var(--cyan);box-shadow:0 0 6px var(--cyan)"></span>アクティブルーム</div>
+      <div class="card-value loading-val" id="val-rooms" style="color:var(--cyan)">—</div>
+      <div class="card-sub" id="sub-rooms">取得中...</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></span>アクティブプレイヤー</div>
+      <div class="card-value loading-val" id="val-players" style="color:var(--green)">—</div>
+      <div class="card-sub" id="sub-players">取得中...</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:var(--yellow);box-shadow:0 0 6px var(--yellow)"></span>推定ストレージ</div>
+      <div class="card-value loading-val" id="val-storage" style="color:var(--yellow)">—</div>
+      <div class="card-sub" id="sub-storage">/ 1 GB 無料枠</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:var(--magenta);box-shadow:0 0 6px var(--magenta)"></span>接続数 (推定)</div>
+      <div class="card-value loading-val" id="val-conns" style="color:#fb7185">—</div>
+      <div class="card-sub" id="sub-conns">/ 100 同時接続 無料枠</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:#8b5cf6;box-shadow:0 0 6px #8b5cf6"></span>Sessionリード数</div>
+      <div class="card-value" id="val-reads" style="color:#a78bfa">0</div>
+      <div class="card-sub">このページを開いてから</div>
+      <div class="card-note">Firebase全体ではありません</div>
+    </div>
+    <div class="card">
+      <div class="card-label"><span class="card-label-dot" style="background:var(--orange);box-shadow:0 0 6px var(--orange)"></span>最終更新</div>
+      <div class="card-value" id="val-time" style="color:var(--orange);font-size:1.6rem;letter-spacing:-0.01em">—:—:—</div>
+      <div class="card-sub" id="sub-time">60秒ごとに自動更新</div>
+    </div>
+  </div>
+
+  <div class="section-title">無料枠ゲージ</div>
+  <div class="gauges-grid">
+    <div class="gauge-card">
+      <div class="gauge-header">
+        <div class="gauge-name">STORAGE （推定）</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="gauge-tag tag-estimated">ESTIMATED</span>
+          <div class="gauge-limit" id="gauge-storage-limit">0 KB / 1 GB</div>
+        </div>
+      </div>
+      <div class="gauge-bar-wrap"><div class="gauge-bar safe" id="bar-storage" style="width:0%"></div></div>
+      <div class="gauge-footer">
+        <div class="gauge-vals" id="gauge-storage-vals">—</div>
+        <div class="gauge-pct" id="gauge-storage-pct">0%</div>
+      </div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-header">
+        <div class="gauge-name">SIMULTANEOUS CONNECTIONS</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="gauge-tag tag-live">LIVE</span>
+          <div class="gauge-limit" id="gauge-conn-limit">— / 100</div>
+        </div>
+      </div>
+      <div class="gauge-bar-wrap"><div class="gauge-bar safe" id="bar-conn" style="width:0%"></div></div>
+      <div class="gauge-footer">
+        <div class="gauge-vals" id="gauge-conn-vals">—</div>
+        <div class="gauge-pct" id="gauge-conn-pct">0%</div>
+      </div>
+    </div>
+    <div class="gauge-card">
+      <div class="gauge-header">
+        <div class="gauge-name">SESSION READS</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="gauge-tag tag-session">THIS SESSION</span>
+          <div class="gauge-limit" id="gauge-reads-limit">—</div>
+        </div>
+      </div>
+      <div class="gauge-bar-wrap"><div class="gauge-bar safe" id="bar-reads" style="width:0%"></div></div>
+      <div class="gauge-footer">
+        <div class="gauge-vals" id="gauge-reads-vals">—</div>
+        <div class="gauge-pct" id="gauge-reads-pct">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">ログ</div>
+  <div class="log-card" id="log"></div>
+
+  <div class="footer">
+    Q-Room Monitor &nbsp;·&nbsp; Firebase Realtime Database &nbsp;·&nbsp; Project: q-room-fe8a6<br>
+    正確な使用量は
+    <a href="https://console.firebase.google.com/project/q-room-fe8a6/usage" target="_blank">Firebase Console</a>
+    &nbsp;/&nbsp;
+    <a href="https://console.firebase.google.com/project/q-room-fe8a6/database/q-room-fe8a6-default-rtdb/data" target="_blank">Realtime Database</a>
+    で確認してください。
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="js/monitor.js"></script>
+</body>
+</html>

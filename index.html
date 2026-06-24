@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Q-Room | オンラインクイズルーム</title>
+<meta name="description" content="Q-Roomは、リアルタイムで進行する多機能なオンラインクイズシステムです。自身で部屋を作成し、NewYorkやアップダウンなど様々なルールをオンラインでみんなとクイズ対戦を楽しめます。">
+<link rel="canonical" href="https://astro-root.com/q-room/">
+<meta property="og:title" content="Q-Room | Online Quiz Room">
+<meta property="og:description" content="リアルタイムで進行する多機能なオンラインクイズシステム。様々なルールのクイズ部屋を作成・参加できます。">
+<meta property="og:url" content="https://astro-root.com/q-room/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Q-Room">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+JP:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="/q-room/manifest.json">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "bbcb0764-311f-4806-a6f0-1107d93c5b7c",
+      autoResubscribe: true,
+      notifyButton: { enable: false },
+    });
+  });
+</script>
+<meta name="theme-color" content="#0a0a0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Q-Room">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="stylesheet" href="css/q-room.css">
+</head>
+<body>
+
+
+<div id="screen-top" class="screen active">
+  <div id="dev-notice-banner" class="dev-notice-banner">
+    <span class="dev-notice-icon">📢</span>
+    <span class="dev-notice-text" id="dev-notice-text"></span>
+    <button class="dev-notice-close" onclick="dismissDevNotice()">✕</button>
+  </div>
+
+  <div class="hero">
+    <button class="hero-theme-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="ダーク/ライトモード切替">
+      <span id="theme-icon">☀️</span>
+    </button>
+    <button class="hero-account-btn" id="hero-account-btn" onclick="showAccountPage()" title="アカウント">
+      <span id="hero-account-icon">
+        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+    </button>
+    <button class="hero-bell-btn" id="top-bell-btn" onclick="currentUser ? toggleTopNotifDrawer() : showAccountPage()" title="通知" style="display:none;">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="hero-bell-badge" id="top-bell-badge" style="display:none;"></span>
+    </button>
+    <div class="logo">Q-Room</div>
+    <div class="logo-sub">Online QUIZ Room</div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="field">
+      <label>PLAYER NAME</label>
+      <input type="text" id="in-name" placeholder="Enter your name" maxlength="20" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>ROOM ID</label>
+      <div class="row">
+        <input type="text" id="in-room" placeholder="5 numbers" maxlength="5" pattern="[0-9]*" inputmode="numeric">
+        <button class="btn-gen" onclick="document.getElementById('in-room').value = String(Math.floor(10000+Math.random()*90000))">🎲</button>
+      </div>
+    </div>
+    <div id="top-err" class="err"></div>
+    <button class="btn btn-pri" onclick="handleCreate()" style="margin-bottom:20px;">CREATE ROOM</button>
+    <button class="btn btn-sec" onclick="handleJoin()">JOIN ROOM</button>
+    <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:28px; padding-bottom:8px; flex-wrap:wrap;">
+      <button onclick="openFeedback()" style="background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">FEEDBACK</span>
+      </button>
+      <a href="https://twitter.com/astro_root" target="_blank" rel="noopener" style="display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none; transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='#1d9bf0'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">TWITTER</span>
+      </a>
+      <a href="https://astro-root.com/" target="_blank" rel="noopener" style="display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none; transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">WEBSITE</span>
+      </a>
+      <a href="https://astro-root.com/q-room/manual.html" target="_blank" rel="noopener" style="display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none; transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">MANUAL</span>
+      </a>
+      <a href="https://astro-root.com/q-room/monitor" target="_blank" rel="noopener" style="display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); text-decoration:none; transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">MONITOR</span>
+      </a>
+      <button onclick="tweetApp()" style="background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='#1d9bf0'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:currentColor;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">TWEET</span>
+      </button>
+      <button id="top-install-btn" onclick="openInstallModal()" style="background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--text-muted); transition:0.3s; padding:8px 16px; border-radius:12px;" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-muted)'">
+        <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18" stroke-width="2.5" stroke-linecap="round"/><path d="M12 6v6m0 0l-2-2m2 2l2-2"/></svg>
+        <span style="font-family:var(--font-en);font-size:0.75rem;letter-spacing:0.12em;font-weight:700;">INSTALL</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div id="screen-room" class="screen">
+  <div class="header">
+    <div class="header-row1">
+      <button class="h-btn-icon h-btn-icon-theme-room" onclick="toggleTheme()" title="テーマ切替" id="theme-toggle-btn-room">
+        <span id="theme-icon-room">☀️</span>
+      </button>
+      <div class="header-row1-spacer"></div>
+      <button class="h-btn-icon h-btn-icon-tweet" onclick="tweetInvite()" title="Xに投稿">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;fill:currentColor;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </button>
+      <button class="h-btn-icon notif-bell-btn" onclick="toggleNotifPanel()" title="通知" id="notif-bell-btn" style="display:none;">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="notif-badge" id="notif-badge" style="display:none;"></span>
+      </button>
+      <button class="h-btn-icon chat-btn" onclick="toggleChat()" title="Chat" id="chat-header-btn">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span class="chat-badge" id="chat-badge"></span>
+      </button>
+      <button class="h-btn-icon h-btn-icon-feedback" onclick="openFeedback()" title="Feedback">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+      </button>
+      <button class="h-btn-icon" onclick="openModal()" title="Settings">
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+    <div class="header-row2">
+      <div class="room-info">ROOM<span id="game-rid">—</span></div>
+      <div class="rule-badge" id="game-rule">—</div>
+    </div>
+  </div>
+  <div class="timer-panel" id="timer-panel">
+    <div class="timer-display" id="timer-display">05:00</div>
+    <div class="timer-controls">
+      <button class="timer-btn timer-btn-start" id="timer-btn-startstop" onclick="timerAction('toggle')">▶ START</button>
+      <button class="timer-btn timer-btn-reset" onclick="timerAction('reset')">↺ RESET</button>
+    </div>
+  </div>
+  <div class="scroll-area"><div id="plist" class="plist"></div></div>
+  <div class="action-panel" id="mypanel">
+    <div class="ox-grid" id="ox-grid">
+      <button class="ox-btn btn-o" onclick="sendAction('correct')">◯</button>
+      <button class="ox-btn btn-x" onclick="sendAction('wrong')">✕</button>
+    </div>
+    <div class="sub-actions">
+      <button class="sub-btn" id="btn-undo" onclick="reqUndo()" disabled>↩ UNDO</button>
+      <button class="sub-btn" onclick="toggleRole()" id="btn-role">👀 WATCH</button>
+      <button class="sub-btn" id="btn-board-host" onclick="boardSetHost()" style="display:none;">🎙 HOST</button>
+      <button class="sub-btn" onclick="leaveRoom()">🚪 LEAVE</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="screen-result" class="screen">
+  <div class="r-header">
+    <div class="r-title">RESULT</div>
+    <div style="display:flex; gap:12px; max-width:240px; margin:0 auto;">
+      <button class="sub-btn" onclick="backToRoom()" style="flex:1;">Back to ROOM</button>
+      <button class="sub-btn" onclick="tweetResult()" style="flex:0 0 auto; padding:12px 16px; color:#1d9bf0; border-color:rgba(29,155,240,0.4);" title="結果をツイート">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;display:block;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="scroll-area"><div id="rlist" class="plist"></div></div>
+</div>
+
+
+<div id="screen-account" class="screen">
+  <div class="acct-header">
+    <button class="acct-back-btn" onclick="show('top')">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="acct-header-title">ACCOUNT</div>
+    <button class="hero-theme-btn acct-theme-btn" onclick="toggleTheme()" title="テーマ切替">
+      <span id="theme-icon-acct">☀️</span>
+    </button>
+  </div>
+
+  <!-- ログイン前 -->
+  <div id="acct-guest-section">
+    <div class="acct-guest-icon">
+      <svg viewBox="0 0 24 24" width="56" height="56" stroke="currentColor" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="acct-guest-label">ログイン / アカウント登録</div>
+    <div class="acct-tabs">
+      <button class="acct-tab active" id="acct-tab-login" onclick="switchAcctTab('login')">LOGIN</button>
+      <button class="acct-tab" id="acct-tab-register" onclick="switchAcctTab('register')">REGISTER</button>
+    </div>
+    <div class="acct-form-wrap" id="acct-login-form">
+      <div class="field"><label>EMAIL or USER ID</label><input type="text" id="auth-email-login" placeholder="your@email.com or user_id" autocomplete="username"></div>
+      <div class="field"><label>PASSWORD</label><input type="password" id="auth-pw-login" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginAccount()"></div>
+      <div id="auth-err-login" class="err"></div>
+      <button class="btn btn-pri" onclick="loginAccount()" style="margin-bottom:12px;">LOGIN</button>
+      <button class="btn btn-ghost" onclick="forgotPassword()">パスワードをお忘れの場合</button>
+    </div>
+    <div class="acct-form-wrap" id="acct-register-form" style="display:none;">
+      <div class="field"><label>EMAIL</label><input type="email" id="auth-email-reg" placeholder="your@email.com" autocomplete="email"></div>
+      <div class="field">
+        <label>USER ID <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;">（半角英数字・_ 3〜20文字）</span></label>
+        <input type="text" id="auth-uid-reg" placeholder="quiz_master" maxlength="20" autocomplete="off" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'')">
+      </div>
+      <div class="field">
+        <label>PASSWORD <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;">（英字+数字+記号 8文字以上）</span></label>
+        <input type="password" id="auth-pw-reg" placeholder="Passw0rd!" autocomplete="new-password" onkeydown="if(event.key==='Enter')registerAccount()">
+      </div>
+      <div id="auth-err-reg" class="err"></div>
+      <button class="btn btn-pri" onclick="registerAccount()">CREATE ACCOUNT</button>
+    </div>
+  </div>
+
+  <!-- ログイン後 -->
+  <div id="acct-user-section" style="display:none;">
+
+    <!-- プロフィールヘッダ -->
+    <div class="acct-profile-hero">
+      <div class="acct-profile-icon-wrap">
+        <div class="profile-icon-display" id="profile-icon-display">🎮</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;align-items:center;">
+          <button class="profile-icon-change-btn" onclick="toggleIconPicker()">絵文字アイコン</button>
+          <button class="profile-icon-change-btn" onclick="triggerImageUpload()">📷 画像をアップロード</button>
+          <button class="profile-icon-change-btn" id="btn-reset-icon" onclick="resetIconToDefault()" style="display:none;color:var(--red);border-color:rgba(239,68,68,0.4);">🗑 画像を削除</button>
+          <input type="file" id="icon-image-file" accept="image/*" style="display:none;" onchange="onIconImageSelected(event)">
+        </div>
+      </div>
+      <div class="acct-profile-meta">
+        <div class="acct-profile-uid" id="profile-uid-display">—</div>
+        <div class="acct-profile-email" id="profile-email-display">—</div>
+      </div>
+    </div>
+
+    <!-- アイコン選択 -->
+    <div class="icon-picker" id="icon-picker" style="display:none;"></div>
+
+    <!-- クロップUI -->
+    <div id="icon-crop-wrap" style="display:none;margin:0 20px 16px;">
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-align:center;">ドラッグ＆ピンチで位置・拡大を調整</div>
+      <div id="icon-crop-stage" style="width:200px;height:200px;border-radius:50%;overflow:hidden;position:relative;background:#111;margin:0 auto 12px;border:2px solid var(--cyan);touch-action:none;cursor:grab;">
+        <img id="icon-crop-img" style="position:absolute;transform-origin:0 0;user-select:none;-webkit-user-drag:none;" draggable="false">
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="profile-icon-change-btn" onclick="cropIconAndSave()" style="color:var(--cyan);border-color:rgba(6,182,212,0.5);">✅ この位置で保存</button>
+        <button class="profile-icon-change-btn" onclick="cancelCrop()">キャンセル</button>
+      </div>
+    </div>
+
+    <!-- 名前・称号 -->
+    <div class="acct-section">
+      <div class="field">
+        <label>NAME <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;">（20文字以内）</span></label>
+        <input type="text" id="profile-name-input" maxlength="20" placeholder="あなたの名前">
+      </div>
+      <div class="field">
+        <label>称号 <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;">（20文字以内）</span></label>
+        <input type="text" id="profile-title-input" maxlength="20" placeholder="クイズ王">
+      </div>
+      <button class="btn btn-pri" onclick="saveProfile()" style="margin-bottom:0;">SAVE</button>
+    </div>
+
+    <!-- スタッツ -->
+    <div class="acct-section">
+      <div class="acct-section-title">📊 STATS</div>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- フレンド -->
+    <div class="acct-section">
+      <button class="btn" onclick="openFriendModal()" style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.35);color:var(--cyan);margin-bottom:0;">👥 フレンド管理</button>
+    </div>
+
+    <!-- アカウント設定 -->
+    <div class="acct-section">
+      <button onclick="toggleAccountSettings()" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--text-muted);font-family:var(--font-en);font-size:0.82rem;font-weight:700;letter-spacing:0.1em;padding:0;margin-bottom:12px;" id="account-settings-toggle">
+        ⚙️ ACCOUNT SETTINGS <span id="account-settings-arrow" style="margin-left:4px;">▼</span>
+      </button>
+      <div id="account-settings-body" style="display:none;">
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:14px;padding:16px;margin-bottom:12px;">
+          <div style="font-family:var(--font-en);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:12px;">USER ID</div>
+          <input type="text" id="new-uid-input" placeholder="新しいユーザーID（3〜20文字）" maxlength="20" autocomplete="off" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'')" style="margin-bottom:8px;">
+          <button class="btn btn-sec" onclick="updateUserId()" style="padding:10px;">USER ID を変更</button>
+          <div id="uid-change-err" class="err" style="margin-bottom:0;margin-top:8px;"></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:14px;padding:16px;margin-bottom:12px;">
+          <div style="font-family:var(--font-en);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:12px;">EMAIL</div>
+          <input type="email" id="new-email-input" placeholder="新しいメールアドレス" autocomplete="email" style="margin-bottom:8px;">
+          <input type="password" id="reauth-pw-email" placeholder="現在のパスワード（確認用）" autocomplete="current-password" style="margin-bottom:8px;">
+          <button class="btn btn-sec" onclick="updateEmail()" style="padding:10px;">メールアドレスを変更</button>
+          <div id="email-change-err" class="err" style="margin-bottom:0;margin-top:8px;"></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:14px;padding:16px;">
+          <div style="font-family:var(--font-en);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:12px;">PASSWORD</div>
+          <input type="password" id="reauth-pw-current" placeholder="現在のパスワード" autocomplete="current-password" style="margin-bottom:8px;">
+          <input type="password" id="new-pw-input" placeholder="新しいパスワード（英字+数字+記号 8文字以上）" autocomplete="new-password" style="margin-bottom:8px;">
+          <input type="password" id="new-pw-confirm" placeholder="新しいパスワード（確認）" autocomplete="new-password" style="margin-bottom:8px;">
+          <button class="btn btn-sec" onclick="updatePassword()" style="padding:10px;">パスワードを変更</button>
+          <div id="pw-change-err" class="err" style="margin-bottom:0;margin-top:8px;"></div>
+        </div>
+        <!-- プッシュ通知設定 -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:14px;padding:16px;margin-top:12px;">
+          <div style="font-family:var(--font-en);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:12px;">PUSH NOTIFICATIONS</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:0.85rem;color:var(--text-main);margin-bottom:3px;">ロック画面・バックグラウンド通知</div>
+              <div id="push-notif-status" style="font-size:0.75rem;color:var(--text-muted);">読み込み中...</div>
+            </div>
+            <button id="push-notif-toggle-btn" onclick="handlePushNotifToggle()" style="padding:9px 18px;border-radius:10px;border:1px solid rgba(6,182,212,0.4);background:rgba(6,182,212,0.1);color:var(--cyan);font-family:var(--font-en);font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:0.2s;">有効にする</button>
+          </div>
+          <div id="push-notif-msg" style="font-size:0.75rem;color:var(--text-muted);display:none;"></div>
+        </div>
+        <!-- ホーム画面に追加 -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:14px;padding:16px;margin-top:12px;">
+          <div style="font-family:var(--font-en);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;color:var(--text-muted);margin-bottom:12px;">ADD TO HOME SCREEN</div>
+          <div style="font-size:0.82rem;color:var(--text-main);margin-bottom:10px;line-height:1.6;" id="pwa-install-desc">ホーム画面に追加するとアプリのように使えます。<br>iPhoneの場合、通知もホーム画面追加後に有効になります。</div>
+          <button id="pwa-install-btn" onclick="handlePwaInstall()" style="padding:10px 20px;border-radius:10px;border:1px solid rgba(6,182,212,0.4);background:rgba(6,182,212,0.1);color:var(--cyan);font-family:var(--font-en);font-size:0.82rem;font-weight:700;cursor:pointer;width:100%;transition:0.2s;display:none;">📲 ホーム画面に追加</button>
+          <div id="pwa-ios-guide" style="display:none;">
+            <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.8;">
+              <div>① Safariの <strong style="color:var(--text-main);">共有ボタン</strong>（□↑）をタップ</div>
+              <div>② <strong style="color:var(--text-main);">「ホーム画面に追加」</strong> を選択</div>
+              <div>③ ホーム画面のアイコンから起動後、通知を有効化</div>
+            </div>
+          </div>
+          <div id="pwa-installed-msg" style="display:none;font-size:0.82rem;color:var(--cyan);">✅ すでにホーム画面に追加済みです</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ログアウト・退会 -->
+    <div class="acct-section" style="padding-bottom:40px;display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-warn" onclick="logoutAccount()">LOGOUT</button>
+      <button onclick="deleteAccount()" style="background:none;border:none;cursor:pointer;color:rgba(239,68,68,0.5);font-size:0.78rem;text-decoration:underline;padding:4px;align-self:center;">退会する</button>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+  <div class="m-content">
+    <button class="m-close" onclick="closeModal()">✕</button>
+    <div class="m-title">ROOM SETTINGS</div>
+
+    <div id="admin-gate"></div>
+
+    <div id="admin-section">
+      <div class="field">
+        <label>RULE</label>
+        <select id="sel-rule" onchange="changeRuleUI()">
+          <option value="survival">m◯n×</option>
+          <option value="free">Free</option>
+          <option value="newyork">NewYork</option>
+          <option value="rentou">連答付き</option>
+          <option value="updown">up-down</option>
+          <option value="by">by</option>
+          <option value="freeze">Freeze</option>
+          <option value="m_n_rest">m◯n休</option>
+          <option value="swedish">Swedish</option>
+          <option value="ren_wrong">連誤答付き</option>
+          <option value="divide">divide</option>
+          <option value="combo">m hits Combo</option>
+          <option value="attack_surv">アタック風サバイバル</option>
+          <option value="lucky">LuckyShot</option>
+          <option value="spiral">螺旋階段</option>
+          <option value="time_race">Time Race</option>
+          <option value="board_quiz">Board Quiz</option>
+        </select>
+      </div>
+      <div id="config-area"></div>
+    </div>
+
+    <hr>
+    <div class="s-grid">
+      <button class="sub-btn" onclick="copyUrl()">🔗 Copy URL</button>
+      <button class="sub-btn" onclick="copyId()">📋 Copy ID</button>
+    </div>
+    <div id="admin-section-btns">
+      <button class="btn btn-sec" onclick="resetPoints()" style="margin-bottom:16px;">🔄 RESET SCORES</button>
+      <button class="btn btn-warn" onclick="endGame()">🏁 FINISH GAME</button>
+      <div id="invite-friend-section" style="display:none; margin-top:20px;">
+        <hr style="margin-bottom:20px;">
+        <button class="btn btn-sec" onclick="openInviteFriendModal()" style="border-color:rgba(6,182,212,0.4);color:var(--cyan);">👥 フレンドを招待</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="modal-room-info" class="modal room-share-modal" onclick="if(event.target===this)closeRoomInfo()">
+  <div class="m-content">
+    <button class="m-close" onclick="closeRoomInfo()">✕</button>
+    <div class="m-title" id="room-info-title">ROOM CREATED</div>
+
+    <div class="share-row">
+      <span class="share-label">ID</span>
+      <span class="share-val" id="share-room-id">—</span>
+      <button class="share-copy-btn" id="btn-copy-id" onclick="copyShareId()">COPY</button>
+    </div>
+    <div class="share-row">
+      <span class="share-label">URL</span>
+      <span class="share-val" id="share-room-url">—</span>
+      <button class="share-copy-btn" id="btn-copy-url" onclick="copyShareUrl()">COPY</button>
+    </div>
+
+    <button class="share-native-btn" id="btn-native-share" onclick="nativeShare()">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      INVITE FRIENDS
+    </button>
+    <button class="room-info-dismiss" onclick="closeRoomInfo()">START PLAYING →</button>
+  </div>
+</div>
+
+
+<!-- ホーム画面追加モーダル -->
+<div id="modal-install" class="modal" onclick="if(event.target===this)closeInstallModal()">
+  <div class="m-content" style="max-width:380px;">
+    <button class="m-close" onclick="closeInstallModal()">✕</button>
+    <div class="m-title">📲 ホーム画面に追加</div>
+
+    <!-- Chrome/Edge: ネイティブボタン -->
+    <div id="install-native-section" style="display:none;">
+      <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.7;margin-bottom:20px;">ボタンを押すとホーム画面にアプリとして追加できます。<br>追加後はアプリと同じ感覚で使えて、通知も受け取れます。</p>
+      <button onclick="handlePwaInstall()" style="width:100%;padding:14px;border-radius:12px;border:1px solid rgba(6,182,212,0.5);background:rgba(6,182,212,0.12);color:var(--cyan);font-family:var(--font-en);font-size:0.95rem;font-weight:700;cursor:pointer;letter-spacing:0.08em;">📲 ホーム画面に追加する</button>
+    </div>
+
+    <!-- iOS Safari: 手順ガイド -->
+    <div id="install-ios-section" style="display:none;">
+      <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;margin-bottom:20px;">iPhoneの場合、以下の手順でホーム画面に追加してください。<br>追加後は通知も受け取れるようになります。</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:12px;">
+          <div style="font-size:1.6rem;flex-shrink:0;">①</div>
+          <div>
+            <div style="font-size:0.88rem;color:var(--text-main);font-weight:700;margin-bottom:3px;">共有ボタンをタップ</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">画面下部の <strong style="color:var(--text-main);">□↑</strong> アイコン</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:12px;">
+          <div style="font-size:1.6rem;flex-shrink:0;">②</div>
+          <div>
+            <div style="font-size:0.88rem;color:var(--text-main);font-weight:700;margin-bottom:3px;">「ホーム画面に追加」を選択</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">メニューをスクロールして見つけてください</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:12px;">
+          <div style="font-size:1.6rem;flex-shrink:0;">③</div>
+          <div>
+            <div style="font-size:0.88rem;color:var(--text-main);font-weight:700;margin-bottom:3px;">ホーム画面のアイコンから起動</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">起動後にアカウント設定から通知を有効化</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- すでにインストール済み -->
+    <div id="install-done-section" style="display:none;">
+      <p style="color:var(--cyan);font-size:0.9rem;text-align:center;padding:20px 0;">✅ すでにホーム画面に追加済みです</p>
+    </div>
+
+    <!-- 非対応ブラウザ -->
+    <div id="install-unsupported-section" style="display:none;">
+      <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.7;">ブラウザのメニューから「ホーム画面に追加」または「アプリをインストール」を選択してください。</p>
+    </div>
+  </div>
+</div>
+
+<div id="modal-feedback" class="modal" onclick="if(event.target===this)closeFeedback()">
+  <div class="m-content">
+    <button class="m-close" onclick="closeFeedback()">✕</button>
+    <div class="m-title">FEEDBACK</div>
+    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+      <a href="https://twitter.com/astro_root" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:14px; padding:14px 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:14px; color:var(--text-main); text-decoration:none; transition:0.3s; font-family:var(--font-en); font-size:0.9rem; font-weight:700;" onmouseover="this.style.borderColor='#1d9bf0';this.style.background='rgba(29,155,240,0.08)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.background='rgba(255,255,255,0.04)'">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:#1d9bf0;flex-shrink:0;"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <div>
+          <div style="color:var(--text-muted);font-size:0.7rem;letter-spacing:0.12em;margin-bottom:2px;">TWITTER</div>
+          @astro_root
+        </div>
+      </a>
+      <a href="https://astro-root.com/" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:14px; padding:14px 18px; background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:14px; color:var(--text-main); text-decoration:none; transition:0.3s; font-family:var(--font-en); font-size:0.9rem; font-weight:700;" onmouseover="this.style.borderColor='var(--cyan)';this.style.background='rgba(6,182,212,0.08)'" onmouseout="this.style.borderColor='var(--border-color)';this.style.background='rgba(255,255,255,0.04)'">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--cyan);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        <div>
+          <div style="color:var(--text-muted);font-size:0.7rem;letter-spacing:0.12em;margin-bottom:2px;">WEBSITE</div>
+          astro-root.com
+        </div>
+      </a>
+    </div>
+    <hr>
+    <form action="https://public.herotofu.com/v1/73ca08d0-1004-11f1-9506-dbd2adae6f0e" method="post" target="_blank" onsubmit="setTimeout(closeFeedback, 500)" style="margin-top:28px;">
+      <div class="field">
+        <label>NAME</label>
+        <input type="text" name="name" placeholder="Your Name" required>
+      </div>
+      <div class="field">
+        <label>MESSAGE</label>
+        <textarea name="message" placeholder="Your Message" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-pri">SEND FEEDBACK</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- トップページ用通知センタードロワー -->
+<div class="notif-overlay" id="top-notif-overlay" onclick="toggleTopNotifDrawer()"></div>
+<div class="notif-drawer" id="top-notif-drawer">
+  <div class="chat-handle"></div>
+  <div class="notif-drawer-header">
+    <div class="notif-drawer-title">🔔 NOTIFICATIONS</div>
+    <button class="notif-readall-btn" onclick="topNotifReadAll()">すべて既読</button>
+    <button class="notif-readall-btn" onclick="toggleTopNotifDrawer();showAccountPage();" style="border-color:rgba(6,182,212,0.4);color:var(--cyan);">⚙️ アカウント設定</button>
+    <button class="chat-close" onclick="toggleTopNotifDrawer()" style="margin-left:8px;">✕</button>
+  </div>
+  <div class="notif-list" id="top-notif-drawer-list"></div>
+</div>
+
+<!-- 通知ドロワー（ルーム内） -->
+<div class="notif-overlay" id="notif-overlay" onclick="toggleNotifPanel()"></div>
+<div class="notif-drawer" id="notif-drawer">
+  <div class="chat-handle"></div>
+  <div class="notif-drawer-header">
+    <div class="notif-drawer-title">🔔 NOTIFICATIONS</div>
+    <button class="notif-readall-btn" onclick="markAllNotifRead()">すべて既読</button>
+    <button class="chat-close" onclick="toggleNotifPanel()" style="margin-left:8px;">✕</button>
+  </div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+
+<div class="chat-overlay" id="chat-overlay" onclick="toggleChat()"></div>
+<div class="chat-drawer" id="chat-drawer">
+  <div class="chat-handle"></div>
+  <div class="chat-header">
+    <span class="chat-title">CHAT</span>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-stamps" id="chat-stamps"></div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" type="text" placeholder="メッセージを入力…" maxlength="200" autocomplete="off" onkeydown="if(event.key==='Enter')sendChatMsg()">
+    <button class="chat-send" onclick="sendChatMsg()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    </button>
+  </div>
+</div>
+
+
+<div class="countdown-overlay" id="countdown-overlay">
+  <div class="countdown-num" id="countdown-num">5</div>
+  <div class="countdown-label">GET READY</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+
+
+
+
+
+<div id="modal-delete-account" class="modal" onclick="if(event.target===this)closeDeleteAccountModal()">
+  <div class="m-content" style="max-width:400px;">
+    <button class="m-close" onclick="closeDeleteAccountModal()">✕</button>
+    <div class="m-title" style="color:#f87171;">⚠️ 退会確認</div>
+    <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:20px;line-height:1.6;">退会すると全てのデータ（プロフィール・スタッツ・フレンド・通知）が削除され、元に戻せません。</p>
+    <div class="field">
+      <label>パスワードを入力して本人確認</label>
+      <input type="password" id="delete-account-pw" placeholder="現在のパスワード" autocomplete="current-password">
+    </div>
+    <div id="delete-account-err" class="err" style="display:none;margin-bottom:12px;"></div>
+    <button id="delete-account-btn" class="btn btn-warn" onclick="confirmDeleteAccount()" style="width:100%;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#f87171;">退会を実行する</button>
+    <button class="btn btn-sec" onclick="closeDeleteAccountModal()" style="width:100%;margin-top:8px;">キャンセル</button>
+  </div>
+</div>
+
+<div id="modal-friend" class="modal" onclick="if(event.target===this)closeFriendModal()">
+  <div class="m-content">
+    <button class="m-close" onclick="closeFriendModal()">✕</button>
+    <div class="m-title">👥 FRIENDS</div>
+    <div class="friend-search-row">
+      <input type="text" id="friend-search-input" placeholder="ユーザーIDで検索…" maxlength="20" autocomplete="off" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'')" onkeydown="if(event.key==='Enter')sendFriendRequest()">
+      <button class="friend-search-btn" onclick="sendFriendRequest()">申請</button>
+    </div>
+    <div id="friend-req-section" style="display:none;">
+      <div class="friend-section-label">フレンド申請</div>
+      <div id="friend-req-list"></div>
+    </div>
+    <div class="friend-section-label">フレンド一覧</div>
+    <div id="friend-list"></div>
+  </div>
+</div>
+
+
+<div id="modal-invite-friend" class="modal" onclick="if(event.target===this)closeInviteFriendModal()">
+  <div class="m-content">
+    <button class="m-close" onclick="closeInviteFriendModal()">✕</button>
+    <div class="m-title">👥 フレンドを招待</div>
+    <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px;">フレンドに部屋の招待通知を送ります</div>
+    <div id="invite-friend-list"></div>
+  </div>
+</div>
+
+<script>
+  // Firebaseスクリプト読み込み失敗を検知（学校Wi-Fiなどのブロック対策）
+  window._fbLoadError = false;
+  function _onFbScriptError() {
+    window._fbLoadError = true;
+    document.addEventListener('DOMContentLoaded', function() {
+      const el = document.getElementById('top-err');
+      if (el) {
+        el.innerHTML = '⚠️ 接続に必要なスクリプトを読み込めませんでした。<br>学校・職場のWi-Fiでは通信がブロックされている場合があります。<br>ネットワーク管理者に <b>gstatic.com / firebasedatabase.app</b> の許可を申請してください。';
+        el.style.display = 'block';
+        el.style.lineHeight = '1.7';
+        el.style.whiteSpace = 'normal';
+      }
+    });
+  }
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js" onerror="_onFbScriptError()"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js" onerror="_onFbScriptError()"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js" onerror="_onFbScriptError()"></script>
+<script src="js/q-room.js"></script>
+</body>
+</html>
