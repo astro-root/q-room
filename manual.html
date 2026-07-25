@@ -227,162 +227,162 @@
     </div>
     <div class="rules-grid">
 
-      <div class="rule-card">
-        <span class="rule-name tag-c">m◯n×</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-c">m◯n×</summary>
         <div class="rule-summary">クイズにおける最も基本的なルールです。m問正解すれば勝ち抜けとなり、n問誤答（お手付き）すると失格（トビ）になります。まずはこのルールから遊んでみましょう。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × m → 勝ち抜け</span>
           <span class="formula-lose">✕ × n → 失格</span>
           <span class="formula-note">デフォルト: 5◯2×</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-c">Free</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-c">Free</summary>
         <div class="rule-summary">勝ち抜けや失格の判定が行われない、自由な練習用モードです。エンドレスでクイズを楽しみたい場合や、スコアだけを記録し続けたい場合に使用します。</div>
         <div class="rule-formula">
           <span class="formula-note">勝敗判定なし</span>
         </div>
-      </div>
+      </details>
       
-      <div class="rule-card">
-        <span class="rule-name tag-c">NewYork</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-c">NewYork</summary>
         <div class="rule-summary">正解で加点、誤答で減点されるシンプルなポイント制ルールです。目標スコア(win)に到達すると勝ち抜け、規定のマイナススコア(lose)に達すると失格となります。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
           <span class="formula-lose">スコア ≤ lose → 失格</span>
           <span class="formula-note">デフォルト: 1問正解+1、誤答-1、10点勝ち抜け、-10点失格</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-c">連答付き</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-c">連答付き</summary>
         <div class="rule-summary">正解したあとに連続して正解するとボーナスポイントが加算されるルールです。<br>【加速】2連答目以降はずっと＋2点になります。誤答でリセットされます。<br>【等速】1問正解で「連答権」を獲得し、次問正解で＋2点になりますが、そこで連答権は消費されます。自分が誤答するか、他の人が正解した場合も連答権は消滅します。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
           <span class="formula-lose">✕ × n → 失格</span>
           <span class="formula-note">連答中は+2点、通常時は+1点 / 加速・等速を選択可能</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-c">up-down</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-c">up-down</summary>
         <div class="rule-summary">正解すると1点プラスされますが、1度でも誤答するとスコアが0点にリセットされてしまうシビアなルールです。崩れても上り直すことができますが、n回誤答での失格も設定可能です。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
           <span class="formula-lose">✕ × n → 失格</span>
           <span class="formula-note">誤答でスコアは0にリセット</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-m">by</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-m">by</summary>
         <div class="rule-summary">スコアが「正解数 × (定数 − 誤答数)」で計算されるルールです。誤答するたびに1問正解あたりの価値が下がっていくため、お手付きのリスクが徐々に高まります。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × (m − ✕) ≥ m² → 勝ち抜け</span>
           <span class="formula-lose">✕ × n → 失格</span>
           <span class="formula-note">デフォルト: 定数5、失格3×</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-g">Freeze</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-g">Freeze</summary>
         <div class="rule-summary">誤答すると、その時点での自分の「誤答累計数」と同じ回数だけ解答権が失われる（休みになる）ルールです。休みの間は◯✕ボタンが押せません。失格はなく最後までクイズに参加できます。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × m → 勝ち抜け</span>
           <span class="formula-lose">誤答 → 誤答累計数だけ休み</span>
           <span class="formula-note">失格なし（n=0で設定）</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-g">m◯n休</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-g">m◯n休</summary>
         <div class="rule-summary">誤答した際のリスクが常に一定のルールです。誤答すると固定でn回の「休み」が与えられ、その間は解答に参加できません。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × m → 勝ち抜け</span>
           <span class="formula-lose">✕ → n休み</span>
           <span class="formula-note">デフォルト: 5◯3休</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-y">Swedish</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-y">Swedish</summary>
         <div class="rule-summary">誤答ペナルティが現在の正解数に応じて重くなっていく上級者向けルールです。正解を重ねるほど、1回の誤答で増える✕の数（ペナルティ）が大きくなります。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × m → 勝ち抜け</span>
           <span class="formula-lose">誤答ペナルティ ＝ √(8◯+1) 切上</span>
           <span class="formula-note">デフォルト: 10◯10×</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-y">連誤答付き</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-y">連誤答付き</summary>
         <div class="rule-summary">連続して誤答するとペナルティが倍増するルールです。2回連続で間違えると一気に2✕が追加されます。一度正解すれば連誤答状態はリセットされます。</div>
         <div class="rule-formula">
           <span class="formula-win">◯ × m → 勝ち抜け</span>
           <span class="formula-lose">連誤答中は2倍×カウント</span>
           <span class="formula-note">デフォルト: 5◯3×</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-p">divide</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-p">divide</summary>
         <div class="rule-summary">持ち点（初期値）からスタートし、正解で固定点が加算されますが、誤答すると「現在のスコア ÷ 誤答累計数」にまで持ち点が激減してしまいます。スコアが1未満になると失格です。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
           <span class="formula-lose">スコア &lt; 1 → 失格</span>
           <span class="formula-note">デフォルト: 初期10、加点+10、勝ち抜け100</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-p">m hits Combo</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-p">m hits Combo</summary>
         <div class="rule-summary">連続正解するほど獲得スコアが加速するルールです。1問目は1点、2連答目は2点、3連答目は3点…と増えますが、誤答するとコンボは途切れてしまいます。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ m → 勝ち抜け</span>
           <span class="formula-lose">誤答でコンボリセット、n回誤答で失格</span>
           <span class="formula-note">デフォルト: 勝ち抜け10点</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-m">アタック風サバイバル</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-m">アタック風サバイバル</summary>
         <div class="rule-summary">全員がHP（ライフ）を持った状態で戦うサバイバルルールです。自分が正解すると自分以外の全員にダメージを与え（自身の回復も可能）、誤答すると自分にダメージが入ります。規定の人数まで生き残れば勝利です。</div>
         <div class="rule-formula">
           <span class="formula-win">規定人数まで生き残る</span>
           <span class="formula-lose">HP ≤ 0 → 失格</span>
           <span class="formula-note">デフォルト: 初期HP20</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-m">LuckyShot</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-m">LuckyShot</summary>
         <div class="rule-summary">クイズの実力だけでなく「運」も絡むルールです。正解・誤答時に、設定された最大値までのランダムな点数が加算・減算されます。</div>
         <div class="rule-formula">
           <span class="formula-win">スコア ≥ win → 勝ち抜け</span>
           <span class="formula-lose">スコア ≤ lose → 失格</span>
           <span class="formula-note">デフォルト: 乱数最大10</span>
         </div>
-      </div>
+      </details>
 
-      <div class="rule-card">
-        <span class="rule-name tag-g">螺旋階段</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-g">螺旋階段</summary>
         <div class="rule-summary">スコアの絶対値ではなく、他プレイヤーとの「相対的な位置」が重要になる特殊ルールです。単独トップ（最上位）にいる状態で連続正解すると勝ち抜け、単独ビリ（最下位）で連続誤答すると失格になります。</div>
         <div class="rule-formula">
           <span class="formula-win">最上位でN連答 → 勝ち抜け</span>
           <span class="formula-lose">最下位でN連誤 → 失格</span>
           <span class="formula-note">デフォルト: 上位3連答 / 下位3連誤</span>
         </div>
-      </div>
+      </details>
       
-      <div class="rule-card">
-        <span class="rule-name tag-p">Time Race</span>
+      <details class="rule-card">
+        <summary class="rule-name tag-p">Time Race</summary>
         <div class="rule-summary">上部に表示されるタイマーを使い、制限時間内にどれだけスコアを稼げるかを競うルールです。タイマーが動いている間のみ解答が行え、時間切れ時に最もスコアが高かったプレイヤーが勝利となります。</div>
         <div class="rule-formula">
           <span class="formula-win">時間切れ時にスコアが単独または同点トップ → WIN</span>
           <span class="formula-note">デフォルト: 5分、正解+1、誤答-1</span>
         </div>
-      </div>
+      </details>
 
     </div>
   </section>
