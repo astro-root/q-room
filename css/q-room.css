@@ -2197,6 +2197,8 @@ hr { border: none; border-top: 1px solid var(--border-color); margin: 20px 0; }
   font-family: var(--font-en);
   font-size: 0.75rem;
   font-weight: 700;
+}
+
 /* === q-room-fixes: added by apply_qroom_fixes.sh === */
 :focus-visible {
   outline: 2px solid var(--cyan);
