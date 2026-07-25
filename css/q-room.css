@@ -2264,3 +2264,18 @@ hr { border: none; border-top: 1px solid var(--border-color); margin: 20px 0; }
   padding-bottom: 8px;
   flex-wrap: wrap;
 }
+
+
+/* === q-room-fixes-3: svg icons === */
+.value-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.hero-trust-note-icon {
+  vertical-align: -2px;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
