@@ -2,7 +2,7 @@ const GAME_RULES = {
   survival: { fields: [['m', '勝ち抜け'], ['n', '失格']] },
   free: { fields: [] },
   newyork: { fields: [['m', '正解加点'], ['n', '誤答減点'], ['win', '勝ち抜け'], ['lose', '失格']] },
-  rentou: { fields: [['m', '勝ち抜け'], ['n', '失格']], selects: [{ id: 'mode', label: '連答モード', options: [{ v: 'fast', l: '加速' }, { v: 'const', l: '等速' }] }] },
+  rentou: { fields: [['m', '勝ち抜け'], ['n', '失格']], selects: [{ id: 'mode', label: '連答モード', options: [{ v: 'fast', l: '加速' }, { v: 'const', l: '等速' }, { /* ここに加えて */ }] }] },
   updown: { fields: [['m', '勝ち抜け'], ['n', '失格']] },
   by: { fields: [['m', '初期誤答pt/定数'], ['n', '失格回数']] },
   freeze: { fields: [['m', '勝ち抜け'], ['n', '失格']] },
@@ -31,6 +31,30 @@ function ruleDefinition(rule) {
   return GAME_RULES[rule] || GAME_RULES.free;
 }
 
+function timerSettings(rule, config) {
+  if(rule === 'time_race') {
+    return { enabled: true, mode: 'countdown', limit: config.limit || 300 };
+  }
+  return {
+    enabled: config.clockEnabled === true,
+    mode: config.clockMode === 'countdown' ? 'countdown' : 'countup',
+    limit: config.clockLimit || 300
+  };
+}
+
+function createIdleTimer(rule, config) {
+  const settings = timerSettings(rule, config);
+  const limitMs = settings.limit * 1000;
+  return {
+    state: 'idle',
+    mode: settings.mode,
+    limitMs,
+    remaining: settings.mode === 'countup' ? 0 : limitMs,
+    startAt: null,
+    cdStartAt: null
+  };
+}
+
 function renderRuleConfig(rule, config) {
   const definition = ruleDefinition(rule);
   const numberField = ([id, label]) => `<div class="field"><label>${label}</label><input type="number" id="c_${id}" value="${config[id] !== undefined ? config[id] : ''}"></div>`;
@@ -52,7 +76,39 @@ function renderRuleConfig(rule, config) {
   if(definition.help) {
     html += `<div style="margin-top:4px;padding:12px 16px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:12px;font-size:0.82rem;color:var(--text-muted);line-height:1.6;">${definition.help}</div>`;
   }
+  if(rule !== 'time_race') {
+    const clockMode = config.clockMode === 'countdown' ? 'countdown' : 'countup';
+    const clockLimit = config.clockLimit || 300;
+    html += `<hr>
+      <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0">
+          <input type="checkbox" id="c_clockEnabled" style="width:auto;margin:0" ${config.clockEnabled === true ? 'checked' : ''} onchange="updateClockConfigVisibility()"> 時計を使用する
+        </label>
+      </div>
+      <div class="field">
+        <label>時計の方式</label>
+        <select id="c_clockMode" onchange="updateClockConfigVisibility()">
+          <option value="countup" ${clockMode === 'countup' ? 'selected' : ''}>カウントアップ</option>
+          <option value="countdown" ${clockMode === 'countdown' ? 'selected' : ''}>カウントダウン</option>
+        </select>
+      </div>
+      <div class="s-grid" id="clock-limit-fields">
+        <div class="field"><label>制限時間 (分)</label><input type="number" id="c_clockLimit_m" value="${Math.floor(clockLimit / 60)}" min="0" max="99"></div>
+        <div class="field"><label>制限時間 (秒)</label><input type="number" id="c_clockLimit_s" value="${clockLimit % 60}" min="0" max="59"></div>
+      </div>`;
+  }
   return html;
+}
+
+function updateClockConfigVisibility() {
+  const enabled = document.getElementById('c_clockEnabled');
+  const mode = document.getElementById('c_clockMode');
+  const limitFields = document.getElementById('clock-limit-fields');
+  if(!enabled || !mode || !limitFields) return;
+  mode.disabled = !enabled.checked;
+  const showLimit = enabled.checked && mode.value === 'countdown';
+  limitFields.style.display = showLimit ? '' : 'none';
+  limitFields.querySelectorAll('input').forEach(input => { input.disabled = !showLimit; });
 }
 
 function resetPlayerForRule(player, rule, config) {
@@ -79,6 +135,7 @@ function changeRuleUI(skipRender=false) {
   const h = renderRuleConfig(r, c);
 
   document.getElementById('config-area').innerHTML = h;
+  updateClockConfigVisibility();
 
   if(!skipRender && roomData && r !== roomData.rule) {
     const ruleName = document.getElementById('sel-rule').options[document.getElementById('sel-rule').selectedIndex].text;
@@ -92,10 +149,7 @@ function changeRuleUI(skipRender=false) {
       pushSysMsg('ルール変更のためスコアをリセットしました');
     }
 
-    if(r === 'time_race') {
-      const lm = (DEF_CONF.time_race.limit) * 1000;
-      db.ref(`rooms/${rId}/timer`).set({state:'idle', limitMs:lm, remaining:lm, startAt:null, cdStartAt:null});
-    }
+    db.ref(`rooms/${rId}/timer`).set(createIdleTimer(r, newConf));
     if(r === 'board_quiz') {
       db.ref(`rooms/${rId}/board_phase`).set('input');
       db.ref(`rooms/${rId}/board_host`).remove();
@@ -107,10 +161,12 @@ function collectRuleConfig() {
   const config = {};
   document.querySelectorAll('#config-area input').forEach(el => {
     const key = el.id.replace('c_', '');
-    if(key === 'limit_m' || key === 'limit_s') return;
+    if(key === 'limit_m' || key === 'limit_s' || key === 'clockLimit_m' || key === 'clockLimit_s' || key === 'clockEnabled') return;
     const value = Number(el.value);
     if(Number.isFinite(value)) config[key] = value;
   });
+  const clockEnabled = document.getElementById('c_clockEnabled');
+  if(clockEnabled) config.clockEnabled = clockEnabled.checked;
   document.querySelectorAll('#config-area select').forEach(el => {
     config[el.id.replace('c_', '')] = el.value;
   });
@@ -121,6 +177,7 @@ async function updateConf() {
   if(!roomData || !rId || !db) return;
   const rule = roomData.rule;
   const nc = collectRuleConfig();
+  const previousConf = roomData.conf || DEF_CONF[rule] || {};
 
   // time_race: 分・秒フィールドを合算して limit（秒）に変換
   if(rule === 'time_race') {
@@ -132,10 +189,20 @@ async function updateConf() {
       nc.limit = m * 60 + s;
       if(nc.limit < 1) nc.limit = 1;
     }
+  } else {
+    const mEl = document.getElementById('c_clockLimit_m');
+    const sEl = document.getElementById('c_clockLimit_s');
+    if(mEl && sEl) {
+      const m = Math.max(0, parseInt(mEl.value) || 0);
+      const s = Math.max(0, Math.min(59, parseInt(sEl.value) || 0));
+      nc.clockLimit = Math.max(1, m * 60 + s);
+    }
   }
 
   if(Object.keys(nc).length > 0) {
     roomData = { ...roomData, conf: { ...(roomData.conf || {}), ...nc } };
+    const timerPanel = document.getElementById('timer-panel');
+    if(timerPanel) timerPanel.classList.toggle('visible', timerSettings(rule, roomData.conf).enabled);
     await db.ref(`rooms/${rId}/conf`).update(nc);
     if(rule === 'time_race' && nc.limit !== undefined) {
       const limitMs = nc.limit * 1000;
@@ -153,8 +220,18 @@ async function updateConf() {
         }
         return cur;
       });
+    } else if(rule !== 'time_race' &&
+      (previousConf.clockEnabled !== nc.clockEnabled ||
+       (previousConf.clockMode || 'countup') !== nc.clockMode ||
+       (previousConf.clockLimit || 300) !== nc.clockLimit)) {
+      const nextTimer = createIdleTimer(rule, roomData.conf);
+      await db.ref(`rooms/${rId}/timer`).transaction(cur => {
+        if(cur && (cur.state === 'running' || cur.state === 'countdown')) return cur;
+        return nextTimer;
+      });
     }
   }
+  updateTimerDisplay();
   _configDirty = false;
 }
 
@@ -199,7 +276,8 @@ function renderPlayers() {
   const r = roomData.rule;
   const sorted = sortPlayers(pl, r);
   
-  document.getElementById('timer-panel').classList.toggle('visible', r === 'time_race');
+  const conf = roomData.conf || DEF_CONF[r] || {};
+  document.getElementById('timer-panel').classList.toggle('visible', timerSettings(r, conf).enabled);
   // time_race時はタイマーパネルが表示されるが◯×パネルも必ず表示する
   const myPanel = document.getElementById('mypanel');
   if(myPanel) myPanel.style.display = '';
@@ -752,6 +830,8 @@ function updateTimerDisplay() {
   if(!disp) return;
 
   const { state, startAt, remaining, limitMs, cdStartAt } = timerData;
+  const conf = roomData && roomData.conf ? roomData.conf : DEF_CONF[roomData && roomData.rule];
+  const mode = timerData.mode || timerSettings(roomData && roomData.rule, conf || {}).mode;
 
   // ── ガード（ここより前は _prevTimerState も interval も触らない）──
   if(state === 'countdown') {
@@ -815,12 +895,12 @@ function updateTimerDisplay() {
     const startTick = () => {
       const tick = () => {
         const elapsed = Math.max(0, getServerTime() - startAt);
-        const left = Math.max(0, remaining - elapsed);
-        disp.textContent = formatMs(left);
-        if(left <= 30000) disp.className = 'timer-display danger';
-        else if(left <= 60000) disp.className = 'timer-display warning';
+        const time = mode === 'countup' ? remaining + elapsed : Math.max(0, remaining - elapsed);
+        disp.textContent = formatMs(time);
+        if(mode === 'countdown' && time <= 30000) disp.className = 'timer-display danger';
+        else if(mode === 'countdown' && time <= 60000) disp.className = 'timer-display warning';
         else disp.className = 'timer-display';
-        if(left <= 0) {
+        if(mode === 'countdown' && time <= 0) {
           clearInterval(timerInterval); timerInterval = null;
           db.ref(`rooms/${rId}/timer/state`).transaction(cur => {
             if(cur === 'running') return 'finished';
@@ -841,12 +921,12 @@ function updateTimerDisplay() {
         const tickStart = Date.now();
         const startTick = () => {
           const elapsed = Math.max(0, Date.now() - tickStart);
-          const left = Math.max(0, remaining - elapsed);
-          disp.textContent = formatMs(left);
-          if(left <= 30000) disp.className = 'timer-display danger';
-          else if(left <= 60000) disp.className = 'timer-display warning';
+          const time = mode === 'countup' ? remaining + elapsed : Math.max(0, remaining - elapsed);
+          disp.textContent = formatMs(time);
+          if(mode === 'countdown' && time <= 30000) disp.className = 'timer-display danger';
+          else if(mode === 'countdown' && time <= 60000) disp.className = 'timer-display warning';
           else disp.className = 'timer-display';
-          if(left <= 0) {
+          if(mode === 'countdown' && time <= 0) {
             clearInterval(timerInterval); timerInterval = null;
             db.ref(`rooms/${rId}/timer/state`).transaction(cur => {
               if(cur === 'running') return 'finished';
@@ -864,10 +944,12 @@ function updateTimerDisplay() {
 
   } else if(state === 'paused' || state === 'idle') {
     co.classList.remove('show');
-    const rem = (state === 'paused') ? (remaining !== undefined ? remaining : 0) : (limitMs || 300000);
-    disp.textContent = formatMs(rem);
-    if(rem <= 30000) disp.className = 'timer-display danger';
-    else if(rem <= 60000) disp.className = 'timer-display warning';
+    const time = (state === 'paused')
+      ? (remaining !== undefined ? remaining : 0)
+      : (mode === 'countup' ? 0 : (limitMs || 300000));
+    disp.textContent = formatMs(time);
+    if(mode === 'countdown' && time <= 30000) disp.className = 'timer-display danger';
+    else if(mode === 'countdown' && time <= 60000) disp.className = 'timer-display warning';
     else disp.className = 'timer-display';
 
   } else if(state === 'finished') {
@@ -881,9 +963,13 @@ function updateTimerDisplay() {
 async function timerAction(action) {
   if(!rId || !db) return;
 
-  const conf = (roomData && roomData.conf) ? roomData.conf : DEF_CONF.time_race;
-  const limitMs = (conf.limit || 300) * 1000;
+  const conf = roomData && roomData.conf ? roomData.conf : DEF_CONF[roomData && roomData.rule] || {};
+  const rule = roomData && roomData.rule;
+  const settings = timerSettings(rule, conf);
   const td = timerData || {};
+  const isActiveTimer = td.state === 'running' || td.state === 'countdown' || td.state === 'paused';
+  const mode = rule === 'time_race' ? 'countdown' : (isActiveTimer && td.mode ? td.mode : settings.mode);
+  const limitMs = settings.limit * 1000;
 
   if(action === 'toggle') {
     if(td.state === 'running' || td.state === 'countdown') action = 'stop';
@@ -898,11 +984,13 @@ async function timerAction(action) {
 
   if(action === 'start') {
     if(td.state === 'running' || td.state === 'countdown') return;
-    const currentRemaining = (td.state === 'paused') ? (td.remaining !== undefined ? td.remaining : limitMs) : limitMs;
+    const currentRemaining = (td.state === 'paused')
+      ? (td.remaining !== undefined ? td.remaining : (mode === 'countup' ? 0 : limitMs))
+      : (mode === 'countup' ? 0 : limitMs);
     const cdStartAt = getServerTime();
     await db.ref(`rooms/${rId}/timer`).set({
       state: 'countdown', cdStartAt,
-      remaining: currentRemaining, limitMs: td.limitMs || limitMs, startAt: null
+      mode, remaining: currentRemaining, limitMs, startAt: null
     });
     clearTimeout(cdStartTimeout);
     cdStartTimeout = setTimeout(async () => {
@@ -927,7 +1015,10 @@ async function timerAction(action) {
     }
     if(td.state !== 'running') return;
     const elapsed = td.startAt ? getServerTime() - td.startAt : 0;
-    const currentRemaining = Math.max(0, (td.remaining !== undefined ? td.remaining : limitMs) - elapsed);
+    const baseTime = td.remaining !== undefined ? td.remaining : (mode === 'countup' ? 0 : limitMs);
+    const currentRemaining = mode === 'countup'
+      ? baseTime + elapsed
+      : Math.max(0, baseTime - elapsed);
     await db.ref(`rooms/${rId}/timer`).update({ state: 'paused', remaining: currentRemaining });
 
   } else if(action === 'reset') {
@@ -936,9 +1027,7 @@ async function timerAction(action) {
     clearInterval(cdInterval); cdInterval = null;
     _lastCdStartAt = null;
     _lastStartAt = null;
-    const conf2 = (roomData && roomData.conf) ? roomData.conf : DEF_CONF.time_race;
-    const lm = (conf2.limit || 300) * 1000;
-    await db.ref(`rooms/${rId}/timer`).set({ state: 'idle', limitMs: lm, remaining: lm, startAt: null, cdStartAt: null });
+    await db.ref(`rooms/${rId}/timer`).set(createIdleTimer(rule, conf));
   }
 }
 
@@ -946,6 +1035,7 @@ async function timerAction(action) {
 function onTimerFinished() {
   // 演出は updateTimerDisplay の finished ブランチが担当
   // スコアによる勝敗フラグだけ立てる（画面遷移なし）
+  if(!roomData || roomData.rule !== 'time_race') return;
   _applyTimeRaceResults();
 }
 
